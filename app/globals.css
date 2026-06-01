@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  --color-buffalo-bg: #F9F7F3;
+  --color-buffalo-text: #2D3142;
+  --color-buffalo-accent: #E07A5F;
+}
+
+body {
+  background-color: var(--color-buffalo-bg);
+  color: var(--color-buffalo-text);
+  font-family: var(--font-poppins), sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes fab-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.03);
+    opacity: 0.94;
+  }
+}
+
+.fab-breathe {
+  animation: fab-breathe 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .fab-breathe {
+    animation: none;
+  }
+}
