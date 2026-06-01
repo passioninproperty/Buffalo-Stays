@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import type { ReactElement } from 'react';
 import { MessageCircle, CheckCircle2, Home as HomeIcon, Wifi, DollarSign, Calendar, Users, HeartHandshake, Utensils, WashingMachine, Star, Lock, Sparkles } from 'lucide-react';
 import { getWhatsAppLink, SPACES_DATA, WHATSAPP_MESSAGES } from '@/lib/constants';
 import { WorkflowSection } from '@/components/Shared';
@@ -56,14 +57,14 @@ const FULLY_EQUIPPED_AMENITIES: AmenityItem[] = [
 
 const FEATURED_SPACES = SPACES_DATA.slice(0, 3);
 
-const AUDIENCE_ICON_MAP: Record<AudienceIconKey, JSX.Element> = {
+const AUDIENCE_ICON_MAP: Record<AudienceIconKey, ReactElement> = {
   home: <HomeIcon className="w-6 h-6 text-[#E07A5F]" />,
   users: <Users className="w-6 h-6 text-[#E07A5F]" />,
   wifi: <Wifi className="w-6 h-6 text-[#E07A5F]" />,
   support: <HeartHandshake className="w-6 h-6 text-[#E07A5F]" />,
 };
 
-const AMENITY_ICON_MAP: Record<AmenityIconKey, JSX.Element> = {
+const AMENITY_ICON_MAP: Record<AmenityIconKey, ReactElement> = {
   home: <HomeIcon className="w-6 h-6" />,
   kitchen: <Utensils className="w-6 h-6" />,
   wifi: <Wifi className="w-6 h-6" />,
