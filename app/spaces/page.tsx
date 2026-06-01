@@ -1,9 +1,65 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import { getWhatsAppLink, SPACES_DATA, WHATSAPP_MESSAGES } from '@/lib/constants';
+import { SITE_DESCRIPTION, SITE_IMAGE, SITE_NAME, getAbsoluteUrl } from '@/lib/site';
+
+export const metadata: Metadata = {
+  title: 'Furnished Rentals & Extended Stay Spaces',
+  description: 'Explore Buffalo Stays curated spaces with fully furnished rooms, flexible long-term booking, and WhatsApp availability checks.',
+  alternates: {
+    canonical: '/spaces',
+  },
+  openGraph: {
+    title: `Furnished Rentals & Extended Stay Spaces | ${SITE_NAME}`,
+    description: SITE_DESCRIPTION,
+    url: getAbsoluteUrl('/spaces'),
+    images: [
+      {
+        url: SITE_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: `${SITE_NAME} logo`,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `Furnished Rentals & Extended Stay Spaces | ${SITE_NAME}`,
+    description: SITE_DESCRIPTION,
+    images: [SITE_IMAGE],
+  },
+};
 
 export default function SpacesPage() {
+  const spacesSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: SPACES_DATA.map((space, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'Accommodation',
+        name: space.title,
+        description: space.description,
+        image: getAbsoluteUrl(space.image.startsWith('http') ? space.image : space.image),
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: 'Buffalo',
+          addressRegion: 'NY',
+          addressCountry: 'US',
+        },
+        amenityFeature: space.amenities.map((amenity) => ({
+          '@type': 'LocationFeatureSpecification',
+          name: amenity,
+          value: true,
+        })),
+      },
+    })),
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(spacesSchema) }} />
       <section className="py-20 px-6 lg:px-10 bg-[#F9F7F3]">
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center gap-6">
           <h1 className="text-4xl lg:text-6xl font-bold text-[#2D3142] leading-tight">
@@ -17,6 +73,7 @@ export default function SpacesPage() {
 
       <section className="py-12 px-6 lg:px-10 bg-white shadow-sm border-t border-black/5 flex-1 rounded-t-[3rem]">
         <div className="max-w-7xl mx-auto">
+          <h2 className="sr-only">Available Extended Stay Rentals in Buffalo, NY</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {SPACES_DATA.map((space) => (
               <div key={space.id} className="bg-white p-5 rounded-3xl shadow-lg border border-black/5 flex flex-col group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out">

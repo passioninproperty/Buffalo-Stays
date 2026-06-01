@@ -1,4 +1,15 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
+import { SITE_NAME } from '@/lib/site';
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: `Terms of service for ${SITE_NAME}.`,
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function TermsPage() {
   return (
@@ -25,7 +36,7 @@ export default function TermsPage() {
         <p className="mb-6">Questions about these Terms? Contact us at legal@buffalostays.example.</p>
 
         <div className="mt-8 flex justify-between">
-          <Link href="/" className="text-sm text-[#2D31442]/70 hover:underline">Back home</Link>
+          <Link href="/" className="text-sm text-[#2D3142]/70 hover:underline">Back home</Link>
           <Link href="/privacy" className="text-sm text-[#E07A5F] font-bold">Read Privacy Policy</Link>
         </div>
       </div>

@@ -1,10 +1,12 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactElement } from 'react';
 import { MessageCircle, CheckCircle2, Home as HomeIcon, Wifi, DollarSign, Calendar, Users, HeartHandshake, Utensils, WashingMachine, Star, Lock, Sparkles } from 'lucide-react';
-import { getWhatsAppLink, SPACES_DATA, WHATSAPP_MESSAGES } from '@/lib/constants';
+import { getWhatsAppLink, SPACES_DATA, WHATSAPP_MESSAGES, WHATSAPP_NUMBER } from '@/lib/constants';
 import { WorkflowSection } from '@/components/Shared';
 import { FAQAccordion } from '@/components/FAQAccordion';
+import { SITE_DESCRIPTION, SITE_IMAGE, SITE_NAME, getAbsoluteUrl } from '@/lib/site';
 
 type AudienceIconKey = 'home' | 'users' | 'wifi' | 'support';
 type AmenityIconKey = 'home' | 'kitchen' | 'wifi' | 'laundry' | 'sparkles' | 'dollar' | 'storage' | 'lock' | 'chat';
@@ -76,9 +78,65 @@ const AMENITY_ICON_MAP: Record<AmenityIconKey, ReactElement> = {
   chat: <MessageCircle className="w-6 h-6" />,
 };
 
+export const metadata: Metadata = {
+  title: 'Extended Stay Homes in Buffalo',
+  description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: `${SITE_NAME} | Extended Stay Homes in Buffalo`,
+    description: SITE_DESCRIPTION,
+    url: getAbsoluteUrl('/'),
+    images: [
+      {
+        url: SITE_IMAGE,
+        width: 512,
+        height: 512,
+        alt: `${SITE_NAME} logo`,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${SITE_NAME} | Extended Stay Homes in Buffalo`,
+    description: SITE_DESCRIPTION,
+    images: [SITE_IMAGE],
+  },
+};
+
 export default function Home() {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'LodgingBusiness',
+    name: SITE_NAME,
+    url: getAbsoluteUrl('/'),
+    image: getAbsoluteUrl(SITE_IMAGE),
+    description: SITE_DESCRIPTION,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Buffalo',
+      addressRegion: 'NY',
+      addressCountry: 'US',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 42.8864,
+      longitude: -78.8784,
+    },
+    priceRange: '$$',
+    telephone: `+1-${WHATSAPP_NUMBER}`,
+    areaServed: 'Buffalo, NY',
+    amenityFeature: FULLY_EQUIPPED_AMENITIES.map((amenity) => ({
+      '@type': 'LocationFeatureSpecification',
+      name: amenity.title,
+      value: true,
+    })),
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <HeroSection />
       <StatsBanner />
       <TargetAudienceSection />
