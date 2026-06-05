@@ -40,8 +40,12 @@ npm run start
 - Use `.env.local` for secrets and environment overrides. Example variables used by the site (add as needed):
 
 ```
-WHATSAPP_NUMBER=+1234567890
+NEXT_PUBLIC_WHATSAPP_NUMBER=+1234567890
 ```
+
+- The WhatsApp number is read from `NEXT_PUBLIC_WHATSAPP_NUMBER` at build time.
+- Digits only also work because the app strips spaces, dashes, and `+` signs before creating the link.
+- After changing the Vercel env var, redeploy so Next.js rebuilds with the new value.
 
 Note: Do not commit `.env.local` — it's included in `.gitignore`.
 
@@ -67,7 +71,7 @@ Note: Do not commit `.env.local` — it's included in `.gitignore`.
 
 ## Notes
 
-- The site centralizes WhatsApp messaging in `lib/constants.ts` — update `WHATSAPP_NUMBER` there or via env variable.
+- The site centralizes WhatsApp messaging in `lib/constants.ts` — update `NEXT_PUBLIC_WHATSAPP_NUMBER` in your env or redeploy after changing it in Vercel.
 - Accessibility: focus-visible outlines and prefers-reduced-motion fallbacks are included.
 
 If you'd like, I can add deployment instructions (Vercel, Netlify) or add CI workflows next.

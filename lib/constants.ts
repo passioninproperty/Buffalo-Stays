@@ -1,4 +1,18 @@
-export const WHATSAPP_NUMBER = "1234567890";
+const DEFAULT_WHATSAPP_NUMBER = '1234567890';
+
+function normalizeWhatsAppNumber(value: string | undefined) {
+  if (!value) {
+    return undefined;
+  }
+
+  const digitsOnly = value.replace(/\D/g, '');
+  return digitsOnly.length > 0 ? digitsOnly : undefined;
+}
+
+const configuredWhatsAppNumber = normalizeWhatsAppNumber(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.trim());
+
+export const WHATSAPP_NUMBER =
+  configuredWhatsAppNumber ?? (process.env.NODE_ENV === 'development' ? DEFAULT_WHATSAPP_NUMBER : '');
 
 export const WHATSAPP_MESSAGES = {
   universalInquiry:
