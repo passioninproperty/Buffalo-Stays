@@ -14,11 +14,11 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <main className="min-h-screen bg-brand-bg-main text-brand-text-main py-16 px-6 lg:px-10">
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl p-10 shadow-lg">
-        <h1 className="font-serif text-3xl font-bold mb-4">Terms of Service</h1>
-        <p className="text-sm text-brand-text-main/80 mb-6">Last updated: June 1, 2026</p>
+<div className="max-w-4xl mx-auto bg-brand-bg-surface rounded-2xl p-10 shadow-sm border border-brand-text-muted/20">
+          <h1 className="font-serif text-3xl font-bold mb-4">Terms of Service</h1>
+          <p className="text-sm text-brand-text-main/80 mb-6">Last updated: June 1, 2026</p>
 
-        <p className="mb-4">These Terms of Service govern your use of Buffalo Stays' website and booking services. By accessing or using our site, you agree to these Terms.</p>
+          <p className="mb-4">These Terms of Service govern your use of Buffalo Stays&apos; website and booking services. By accessing or using our site, you agree to these Terms.</p>
 
         <h2 className="font-serif text-xl font-semibold mt-6 mb-2">Bookings & Payments</h2>
         <p className="mb-4">Bookings are subject to availability. Payment terms, deposits, and cancellation policies will be provided at the time of booking. Please review booking details carefully.</p>
