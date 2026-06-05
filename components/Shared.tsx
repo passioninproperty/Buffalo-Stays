@@ -8,11 +8,11 @@ const LOGO_HEIGHT = 72;
 
 export function Navbar() {
   return (
-    <header className="sticky top-0 z-50 bg-[#F9F7F3]/80 backdrop-blur-md border-b border-black/5">
+    <header className="sticky top-0 z-50 bg-brand-bg-main/80 backdrop-blur-md border-b border-black/5">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 lg:px-10 py-6">
         <Link
           href="/"
-          className="group flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E07A5F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F7F3] rounded-xl"
+          className="group flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg-main rounded-xl"
           aria-label="Buffalo Stays home"
         >
           <Image
@@ -23,21 +23,21 @@ export function Navbar() {
             priority
             className="h-12 w-auto object-contain transition-all duration-300 ease-in-out group-hover:opacity-90"
           />
-          <span className="hidden sm:flex flex-col leading-none text-[#2D3142] select-none">
+          <span className="hidden sm:flex flex-col leading-none text-brand-text-main select-none">
             <span className="text-2xl font-bold tracking-tight">Buffalo</span>
-            <span className="text-lg font-semibold tracking-tight text-[#2D3142]/90">Stays</span>
+            <span className="text-lg font-semibold tracking-tight text-brand-text-main/90">Stays</span>
           </span>
         </Link>
         <nav className="flex gap-6 items-center text-sm font-medium">
-          <Link href="/spaces" className="hidden lg:block hover:text-[#E07A5F] hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E07A5F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F7F3] rounded-lg">The Spaces</Link>
-          <Link href="/#experience" className="hidden lg:block hover:text-[#E07A5F] hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E07A5F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F7F3] rounded-lg">Experience</Link>
-          <Link href="/#amenities" className="hidden lg:block hover:text-[#E07A5F] hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E07A5F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F7F3] rounded-lg">Amenities</Link>
-          <Link href="/#how-it-works" className="hidden lg:block hover:text-[#E07A5F] hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E07A5F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F7F3] rounded-lg">How It Works</Link>
+          <Link href="/spaces" className="hidden lg:block hover:text-brand-primary hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg-main rounded-lg">The Spaces</Link>
+          <Link href="/#experience" className="hidden lg:block hover:text-brand-primary hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg-main rounded-lg">Experience</Link>
+          <Link href="/#amenities" className="hidden lg:block hover:text-brand-primary hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg-main rounded-lg">Amenities</Link>
+          <Link href="/#how-it-works" className="hidden lg:block hover:text-brand-primary hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg-main rounded-lg">How It Works</Link>
           <a
             href={getWhatsAppLink()}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-[#E07A5F] text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-[#E07A5F]/20 hover:bg-[#c96a50] hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-lg active:scale-95 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E07A5F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F7F3]"
+            className="bg-brand-primary text-brand-bg-surface px-6 py-2.5 border border-brand-primary uppercase tracking-[0.1em] text-xs font-medium hover:bg-brand-primary-hover shadow-none transition-colors duration-500 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary"
           >
             Book Now
           </a>
@@ -53,7 +53,7 @@ export function Footer() {
       <div className="flex flex-col items-center md:items-start gap-3">
         <Link
           href="/"
-          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E07A5F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F7F3] rounded-xl"
+          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg-main rounded-xl"
           aria-label="Buffalo Stays home"
         >
           <Image
@@ -64,12 +64,12 @@ export function Footer() {
             className="h-10 w-auto object-contain"
           />
         </Link>
-        <p className="text-[#2D3142]/75">&copy; {new Date().getFullYear()} Buffalo Stays. All rights reserved.</p>
+        <p className="text-brand-text-main/75">&copy; {new Date().getFullYear()} Buffalo Stays. All rights reserved.</p>
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-6 uppercase tracking-widest text-[10px] text-[#2D3142]/60">
-        <a href="#" className="hover:text-[#E07A5F] hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E07A5F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F7F3] rounded-md">Instagram</a>
-        <Link href="/privacy" className="hover:text-[#E07A5F] hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E07A5F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F7F3] rounded-md">Privacy Policy</Link>
-        <Link href="/terms" className="hover:text-[#E07A5F] hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E07A5F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F7F3] rounded-md">Terms of Service</Link>
+      <div className="flex flex-wrap items-center justify-center gap-6 uppercase tracking-widest text-[10px] text-brand-text-main/60">
+        <a href="#" className="hover:text-brand-primary hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg-main rounded-md">Instagram</a>
+        <Link href="/privacy" className="hover:text-brand-primary hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg-main rounded-md">Privacy Policy</Link>
+        <Link href="/terms" className="hover:text-brand-primary hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg-main rounded-md">Terms of Service</Link>
       </div>
     </footer>
   );
@@ -81,11 +81,11 @@ export function WhatsAppFAB() {
       href={getWhatsAppLink()}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-8 right-8 z-50 flex items-center justify-center w-16 h-16 bg-[#25D366] text-white rounded-full shadow-2xl shadow-green-500/40 hover:-translate-y-0.5 hover:scale-110 hover:brightness-95 transition-all duration-300 ease-in-out cursor-pointer group fab-breathe active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F7F3]"
+      className="fixed bottom-8 right-8 z-50 flex items-center justify-center w-16 h-16 bg-brand-primary text-white rounded-full shadow-lg shadow-brand-primary/20 hover:-translate-y-0.5 hover:scale-110 hover:brightness-110 transition-all duration-300 ease-in-out cursor-pointer group fab-breathe active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg-main"
       aria-label="Chat with us on WhatsApp"
     >
       <MessageCircle className="w-8 h-8 text-white" />
-      <span className="absolute right-full mr-4 bg-[#2D3142] text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out pointer-events-none whitespace-nowrap shadow-lg">
+      <span className="absolute right-full mr-4 bg-brand-primary text-brand-bg-surface text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out pointer-events-none whitespace-nowrap shadow-md border border-brand-primary">
         Chat
       </span>
     </a>
@@ -96,9 +96,9 @@ export function WorkflowSection() {
   return (
     <section id="how-it-works" className="py-8 px-6 lg:px-10 scroll-mt-28">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-[#2D3142] text-white rounded-3xl p-6 flex flex-col md:flex-row justify-around items-center gap-4 mt-2 shadow-lg">
+        <div className="bg-brand-text-main text-white rounded-3xl p-6 flex flex-col md:flex-row justify-around items-center gap-4 mt-2 shadow-lg">
           <div className="flex gap-4 items-center">
-            <div className="w-10 h-10 rounded-full bg-[#E07A5F] flex items-center justify-center font-bold shrink-0">1</div>
+            <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center font-bold shrink-0">1</div>
             <div>
               <p className="font-bold whitespace-nowrap">Browse Spaces</p>
               <p className="text-xs opacity-70">Find your favorite room</p>
@@ -109,7 +109,7 @@ export function WorkflowSection() {
           <div className="md:hidden w-px h-8 bg-white/20 shrink-0"></div>
 
           <div className="flex gap-4 items-center">
-            <div className="w-10 h-10 rounded-full bg-[#E07A5F] flex items-center justify-center font-bold shrink-0">2</div>
+            <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center font-bold shrink-0">2</div>
             <div>
               <p className="font-bold whitespace-nowrap">Chat on WhatsApp</p>
               <p className="text-xs opacity-70">Check dates in seconds</p>
@@ -120,7 +120,7 @@ export function WorkflowSection() {
           <div className="md:hidden w-px h-8 bg-white/20 shrink-0"></div>
 
           <div className="flex gap-4 items-center">
-            <div className="w-10 h-10 rounded-full bg-[#E07A5F] flex items-center justify-center font-bold shrink-0">3</div>
+            <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center font-bold shrink-0">3</div>
             <div>
               <p className="font-bold whitespace-nowrap">Enjoy Your Stay</p>
               <p className="text-xs opacity-70">Get check-in & enjoy</p>

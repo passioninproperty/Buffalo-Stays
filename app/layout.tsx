@@ -1,13 +1,18 @@
 import type { Metadata } from 'next';
-import { Poppins } from 'next/font/google';
+import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { Navbar, Footer, WhatsAppFAB } from '@/components/Shared';
 import { SITE_DESCRIPTION, SITE_IMAGE, SITE_KEYWORDS, SITE_NAME, SITE_TWITTER_HANDLE, SITE_URL } from '@/lib/site';
 
-const poppins = Poppins({
-  weight: ['400', '500', '700'],
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-poppins',
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-serif',
   display: 'swap',
 });
 
@@ -73,8 +78,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={poppins.variable}>
-      <body className="font-sans antialiased text-[#2D3142] bg-[#F9F7F3] flex flex-col min-h-screen relative" suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <body className="font-sans antialiased text-brand-text-main bg-brand-bg-main flex flex-col min-h-screen relative" suppressHydrationWarning>
         <Navbar />
         <main className="flex-1">
           {children}

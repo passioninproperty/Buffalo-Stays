@@ -49,17 +49,17 @@ export function FAQAccordion() {
         <div
           key={index}
           className={`border border-black/5 rounded-2xl overflow-hidden transition-all duration-300 ${
-            openIndex === index ? "bg-white shadow-md" : "bg-[#F9F7F3] hover:bg-white/50"
+            openIndex === index ? "bg-brand-bg-surface border border-brand-text-muted/20" : "bg-transparent hover:bg-brand-bg-surface/50 border border-transparent"
           }`}
         >
           <button
             onClick={() => toggleAccordion(index)}
-            className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E07A5F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F7F3]"
+            className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg-main"
           >
-            <span className="font-bold text-[#2D3142] text-lg pr-8">{faq.question}</span>
+            <span className="font-bold text-brand-text-main text-lg pr-8">{faq.question}</span>
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ease-in-out ${
-                openIndex === index ? "bg-[#E07A5F] text-white rotate-180" : "bg-[#2D3142]/5 text-[#2D3142]"
+                openIndex === index ? "bg-brand-primary text-white rotate-180" : "bg-brand-text-main/5 text-brand-text-main"
               }`}
             >
               <ChevronDown className="w-5 h-5" />
@@ -71,7 +71,7 @@ export function FAQAccordion() {
               openIndex === index ? "max-h-96 pb-5 opacity-100" : "max-h-0 opacity-0"
             }`}
           >
-            <p className="text-[#2D3142]/80 leading-relaxed">
+            <p className="text-brand-text-main/80 leading-relaxed">
               {faq.answer}
             </p>
           </div>
