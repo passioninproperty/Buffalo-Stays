@@ -60,10 +60,10 @@ const FULLY_EQUIPPED_AMENITIES: AmenityItem[] = [
 const FEATURED_SPACES = SPACES_DATA.slice(0, 3);
 
 const AUDIENCE_ICON_MAP: Record<AudienceIconKey, ReactElement> = {
-  home: <HomeIcon className="w-6 h-6 text-[#E07A5F]" />,
-  users: <Users className="w-6 h-6 text-[#E07A5F]" />,
-  wifi: <Wifi className="w-6 h-6 text-[#E07A5F]" />,
-  support: <HeartHandshake className="w-6 h-6 text-[#E07A5F]" />,
+  home: <HomeIcon className="w-6 h-6 text-brand-primary" />,
+  users: <Users className="w-6 h-6 text-brand-primary" />,
+  wifi: <Wifi className="w-6 h-6 text-brand-primary" />,
+  support: <HeartHandshake className="w-6 h-6 text-brand-primary" />,
 };
 
 const AMENITY_ICON_MAP: Record<AmenityIconKey, ReactElement> = {
@@ -152,11 +152,11 @@ export default function Home() {
 
 function FAQSection() {
   return (
-    <section id="faq" className="py-20 px-6 lg:px-10 scroll-mt-28">
+    <section id="faq" className="py-20 px-6 lg:px-10 scroll-mt-28 bg-brand-bg-main">
       <div className="max-w-7xl mx-auto flex flex-col items-center">
         <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
-          <p className="text-lg text-[#2D3142]/70 max-w-xl mx-auto">Everything you need to know about your extended stay with Buffalo Stays.</p>
+          <h2 className="font-serif text-3xl lg:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
+          <p className="text-lg text-brand-text-main/70 max-w-xl mx-auto">Everything you need to know about your extended stay with Buffalo Stays.</p>
         </div>
         <FAQAccordion />
       </div>
@@ -168,10 +168,10 @@ function HeroSection() {
   return (
     <section className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-10 items-center min-h-[550px] px-6 lg:px-10 py-12">
       <div className="w-full lg:w-1/2 flex flex-col gap-6">
-        <h1 className="text-5xl lg:text-7xl font-bold leading-[1.1] text-[#2D3142]">
-          Your cozy home,<br/><span className="text-[#E07A5F]">away from home.</span>
+        <h1 className="font-serif text-5xl lg:text-7xl font-bold leading-[1.1] text-brand-text-main">
+          Your cozy home,<br/><span className="text-brand-primary">away from home.</span>
         </h1>
-        <p className="text-lg text-[#2D3142]/70 max-w-lg leading-relaxed">
+        <p className="text-lg text-brand-text-main/70 max-w-lg leading-relaxed">
           Discover our curated selection of warm, modern spaces designed for comfort, creativity, and extended stays that feel truly authentic.
         </p>
         <div>
@@ -179,14 +179,14 @@ function HeroSection() {
             href={getWhatsAppLink()}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-[#E07A5F] hover:bg-[#c96a50] text-white px-8 py-4 rounded-full font-bold shadow-xl shadow-[#E07A5F]/30 transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E07A5F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F7F3] text-lg"
+            className="inline-flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-hover text-brand-bg-surface px-8 py-4 uppercase tracking-[0.1em] text-sm font-medium transition-colors duration-500 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:ring-offset-1 focus-visible:ring-offset-brand-bg-main"
           >
             <span>Inquire via WhatsApp</span>
             <MessageCircle className="w-5 h-5" />
           </a>
         </div>
       </div>
-      <div className="w-full lg:w-1/2 h-[450px] bg-[#E9E4DB] rounded-[2.5rem] shadow-2xl border-4 border-white overflow-hidden relative">
+      <div className="w-full lg:w-1/2 h-[450px] bg-brand-bg-main rounded-[2.5rem] shadow-2xl border-4 border-brand-bg-surface overflow-hidden relative">
         <Image 
           src="https://picsum.photos/seed/buffalo-hero-longstay/800/600"
           alt="Sunlit Buffalo Stays living space with warm tones, soft textiles, and modern furnishings for long-term comfort"
@@ -195,15 +195,15 @@ function HeroSection() {
           referrerPolicy="no-referrer"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#2D3142]/60 via-transparent to-transparent" />
-        <div className="absolute bottom-6 left-6 right-6 p-5 bg-white/95 backdrop-blur-md rounded-2xl flex justify-between items-center shadow-lg border border-white/50">
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-text-main/60 via-transparent to-transparent" />
+        <div className="absolute bottom-6 left-6 right-6 p-5 bg-brand-bg-surface/95 backdrop-blur-md rounded-2xl flex justify-between items-center shadow-lg border border-brand-bg-surface/50">
           <div>
-            <p className="text-xs font-bold text-[#E07A5F] uppercase tracking-widest mb-1">Featured</p>
-            <p className="font-bold text-[#2D3142] text-lg">The Rust Studio</p>
+            <p className="text-xs font-bold text-brand-primary uppercase tracking-widest mb-1">Featured</p>
+            <p className="font-bold text-brand-text-main text-lg">The Rust Studio</p>
           </div>
           <div className="flex -space-x-3">
-             <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-200"></div>
-             <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-300"></div>
+             <div className="w-10 h-10 rounded-full border-2 border-brand-bg-surface bg-slate-200"></div>
+             <div className="w-10 h-10 rounded-full border-2 border-brand-bg-surface bg-slate-300"></div>
           </div>
         </div>
       </div>
@@ -214,23 +214,23 @@ function HeroSection() {
 function StatsBanner() {
   return (
     <section className="px-6 lg:px-10 pb-16">
-      <div className="max-w-7xl mx-auto bg-white rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-8 shadow-sm border border-black/5">
+      <div className="max-w-7xl mx-auto bg-brand-bg-surface rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-8 shadow-sm border border-black/5">
         <div className="flex flex-col items-center text-center">
-          <Calendar className="w-10 h-10 text-[#E07A5F] mb-3 opacity-90" />
-          <h4 className="text-xl font-bold">30+ Days</h4>
-          <p className="text-sm font-medium text-[#2D3142]/60">Minimum Stay</p>
+          <Calendar className="w-10 h-10 text-brand-primary mb-3 opacity-90" />
+          <h4 className="font-serif text-xl font-bold">30+ Days</h4>
+          <p className="text-sm font-medium text-brand-text-main/60">Minimum Stay</p>
         </div>
-        <div className="hidden md:block w-px h-16 bg-[#2D3142]/10 rounded-full"></div>
+        <div className="hidden md:block w-px h-16 bg-brand-text-main/10 rounded-full"></div>
         <div className="flex flex-col items-center text-center">
-          <Users className="w-10 h-10 text-[#E07A5F] mb-3 opacity-90" />
-          <h4 className="text-xl font-bold">4 Guest Types</h4>
-          <p className="text-sm font-medium text-[#2D3142]/60">Served Across Properties</p>
+          <Users className="w-10 h-10 text-brand-primary mb-3 opacity-90" />
+          <h4 className="font-serif text-xl font-bold">4 Guest Types</h4>
+          <p className="text-sm font-medium text-brand-text-main/60">Served Across Properties</p>
         </div>
-        <div className="hidden md:block w-px h-16 bg-[#2D3142]/10 rounded-full"></div>
+        <div className="hidden md:block w-px h-16 bg-brand-text-main/10 rounded-full"></div>
         <div className="flex flex-col items-center text-center">
-          <HeartHandshake className="w-10 h-10 text-[#E07A5F] mb-3 opacity-90" />
-          <h4 className="text-xl font-bold">24/7 Support</h4>
-          <p className="text-sm font-medium text-[#2D3142]/60">Via WhatsApp</p>
+          <HeartHandshake className="w-10 h-10 text-brand-primary mb-3 opacity-90" />
+          <h4 className="font-serif text-xl font-bold">24/7 Support</h4>
+          <p className="text-sm font-medium text-brand-text-main/60">Via WhatsApp</p>
         </div>
       </div>
     </section>
@@ -239,17 +239,17 @@ function StatsBanner() {
 
 function TargetAudienceSection() {
   return (
-    <section className="py-16 bg-[#F3EFE9] px-6 lg:px-10 rounded-[3rem] mx-4 lg:mx-10 my-4 shadow-sm">
+    <section className="py-16 bg-brand-bg-main px-6 lg:px-10 rounded-[3rem] mx-4 lg:mx-10 my-4 shadow-sm">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl lg:text-4xl font-bold text-center mb-12">The perfect fit for <span className="text-[#E07A5F]">driven stays.</span></h2>
+        <h2 className="font-serif text-3xl lg:text-4xl font-bold text-center mb-12">The perfect fit for <span className="text-brand-primary">driven stays.</span></h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {DRIVEN_STAYS_TARGET_GROUPS.map((audience) => (
-            <div key={audience.title} className="bg-white p-8 rounded-3xl shadow-sm border border-transparent hover:border-[#E07A5F]/20 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col items-start gap-4">
-              <div className="p-3 bg-[#E07A5F]/10 rounded-2xl">
+            <div key={audience.title} className="bg-brand-bg-surface p-8 rounded-3xl shadow-sm border border-transparent hover:border-brand-primary/20 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out flex flex-col items-start gap-4">
+              <div className="p-3 bg-brand-primary/10 rounded-2xl">
                 {AUDIENCE_ICON_MAP[audience.iconKey]}
               </div>
-              <h3 className="font-bold text-lg leading-tight">{audience.title}</h3>
-              <p className="text-[#2D3142]/70 text-sm leading-relaxed">{audience.desc}</p>
+              <h3 className="font-serif font-bold text-lg leading-tight">{audience.title}</h3>
+              <p className="text-brand-text-main/70 text-sm leading-relaxed">{audience.desc}</p>
             </div>
           ))}
         </div>
@@ -279,7 +279,7 @@ function NarrativeSection() {
               referrerPolicy="no-referrer"
             />
           </div>
-          <div className="absolute -bottom-6 -right-6 lg:-right-10 bg-[#E07A5F] text-white p-6 rounded-3xl shadow-xl shadow-[#E07A5F]/30">
+          <div className="absolute -bottom-6 -right-6 lg:-right-10 bg-brand-primary text-white p-6 rounded-3xl shadow-xl shadow-brand-primary/30">
             <div className="flex items-center gap-3">
               <Star className="w-8 h-8 fill-white" />
               <div>
@@ -290,14 +290,14 @@ function NarrativeSection() {
           </div>
         </div>
         <div className="w-full lg:w-1/2">
-          <h2 className="text-4xl lg:text-5xl font-bold mb-10 leading-tight">More than just <br/>a room.</h2>
+          <h2 className="font-serif text-4xl lg:text-5xl font-bold mb-10 leading-tight">More than just <br/>a room.</h2>
           <div className="space-y-8">
             {pillars.map(pillar => (
               <div key={pillar.num} className="flex gap-6 items-start group">
-                <span className="text-3xl font-bold text-[#2D3142]/20 group-hover:text-[#E07A5F] transition-all duration-300 ease-in-out">{pillar.num}</span>
+                <span className="text-3xl font-bold text-brand-text-main/20 group-hover:text-brand-primary transition-all duration-300 ease-in-out">{pillar.num}</span>
                 <div>
-                  <h3 className="text-xl font-bold mb-2">{pillar.title}</h3>
-                  <p className="text-[#2D3142]/70 text-base leading-relaxed max-w-md">{pillar.desc}</p>
+                  <h3 className="font-serif text-xl font-bold mb-2">{pillar.title}</h3>
+                  <p className="text-brand-text-main/70 text-base leading-relaxed max-w-md">{pillar.desc}</p>
                 </div>
               </div>
             ))}
@@ -310,16 +310,16 @@ function NarrativeSection() {
 
 function AmenitiesGrid() {
   return (
-    <section id="amenities" className="py-20 px-6 lg:px-10 bg-white scroll-mt-28">
+    <section id="amenities" className="py-20 px-6 lg:px-10 bg-brand-bg-surface scroll-mt-28">
       <div className="max-w-7xl mx-auto flex flex-col items-center">
-        <h2 className="text-3xl lg:text-5xl font-bold mb-16 text-center max-w-xl">Every stay comes <span className="text-[#E07A5F]">fully equipped.</span></h2>
+        <h2 className="font-serif text-3xl lg:text-5xl font-bold mb-16 text-center max-w-xl">Every stay comes <span className="text-brand-primary">fully equipped.</span></h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
           {FULLY_EQUIPPED_AMENITIES.map((item) => (
-            <div key={item.title} className="bg-[#F9F7F3] p-8 rounded-3xl flex flex-col items-center text-center gap-4 shadow-sm border border-black/5 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out">
-              <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-[#E07A5F] shadow-md mb-2">
+            <div key={item.title} className="bg-brand-bg-main p-8 rounded-3xl flex flex-col items-center text-center gap-4 shadow-sm border border-black/5 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out">
+              <div className="w-14 h-14 bg-brand-bg-surface rounded-full flex items-center justify-center text-brand-primary shadow-md mb-2">
                 {AMENITY_ICON_MAP[item.iconKey]}
               </div>
-              <h4 className="font-bold text-lg px-4">{item.title}</h4>
+              <h4 className="font-serif font-bold text-lg px-4">{item.title}</h4>
             </div>
           ))}
         </div>
@@ -342,25 +342,25 @@ function DesignedForStaysSection() {
     <section className="py-24 px-6 lg:px-10 overflow-hidden">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
         <div className="w-full lg:w-5/12 flex flex-col gap-8">
-          <h2 className="text-4xl lg:text-5xl font-bold leading-[1.1]">Designed for stays <br/><span className="text-[#E07A5F] border-b-4 border-[#E07A5F]/30 pb-1">that last.</span></h2>
-          <p className="text-lg text-[#2D3142]/70 mb-2">We obsess over the details that transform a short-term rental into a genuine living space.</p>
+          <h2 className="font-serif text-4xl lg:text-5xl font-bold leading-[1.1]">Designed for stays <br/><span className="text-brand-primary border-b-4 border-brand-primary/30 pb-1">that last.</span></h2>
+          <p className="text-lg text-brand-text-main/70 mb-2">We obsess over the details that transform a short-term rental into a genuine living space.</p>
           <ul className="space-y-5">
             {checks.map((text, i) => (
               <li key={i} className="flex items-start gap-4">
-                <CheckCircle2 className="w-6 h-6 text-[#E07A5F] shrink-0 mt-0.5" />
-                <span className="font-medium text-[#2D3142]/90 text-lg leading-relaxed">{text}</span>
+                <CheckCircle2 className="w-6 h-6 text-brand-primary shrink-0 mt-0.5" />
+                <span className="font-medium text-brand-text-main/90 text-lg leading-relaxed">{text}</span>
               </li>
             ))}
           </ul>
         </div>
         <div className="w-full lg:w-7/12 relative h-[550px] lg:h-[700px] flex justify-center items-center">
-           <div className="absolute top-0 right-0 w-3/4 h-[60%] rounded-[3rem] overflow-hidden shadow-2xl rotate-3 z-10 border-8 border-white">
+           <div className="absolute top-0 right-0 w-3/4 h-[60%] rounded-[3rem] overflow-hidden shadow-2xl rotate-3 z-10 border-8 border-brand-bg-surface">
               <Image src="https://picsum.photos/seed/buffalo-collage1/600/400" alt="Open-plan Buffalo Stays lounge with natural light and warm contemporary styling" fill className="object-cover" referrerPolicy="no-referrer" />
            </div>
-           <div className="absolute bottom-0 left-0 w-2/3 h-[50%] rounded-[3rem] overflow-hidden shadow-2xl -rotate-6 z-20 border-8 border-white">
+           <div className="absolute bottom-0 left-0 w-2/3 h-[50%] rounded-[3rem] overflow-hidden shadow-2xl -rotate-6 z-20 border-8 border-brand-bg-surface">
               <Image src="https://picsum.photos/seed/buffalo-collage2/600/400" alt="Cozy Buffalo Stays bedroom with layered bedding and calming earth-tone palette" fill className="object-cover" referrerPolicy="no-referrer" />
            </div>
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full overflow-hidden shadow-2xl z-30 border-8 border-white">
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full overflow-hidden shadow-2xl z-30 border-8 border-brand-bg-surface">
               <Image src="https://picsum.photos/seed/buffalo-collage3/400/400" alt="Detail shot of curated decor and textures that define Buffalo Stays' premium hospitality feel" fill className="object-cover" referrerPolicy="no-referrer" />
            </div>
         </div>
@@ -371,18 +371,18 @@ function DesignedForStaysSection() {
 
 function SpacesPreview() {
   return (
-    <section className="py-20 px-6 lg:px-10 bg-white rounded-[3rem] mx-4 lg:mx-10 my-10 shadow-sm border border-black/5">
+    <section className="py-20 px-6 lg:px-10 bg-brand-bg-surface rounded-[3rem] mx-4 lg:mx-10 my-10 shadow-sm border border-black/5">
       <div className="max-w-7xl mx-auto flex flex-col gap-10">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-          <h2 className="text-3xl lg:text-4xl font-bold">Featured Spaces</h2>
-          <Link href="/spaces" className="px-6 py-3 bg-[#F9F7F3] shadow-sm rounded-full text-base font-bold text-[#2D3142] hover:bg-[#E07A5F] hover:text-white hover:-translate-y-0.5 transition-all duration-300 ease-in-out border border-black/5 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E07A5F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F7F3]">
+          <h2 className="font-serif text-3xl lg:text-4xl font-bold">Featured Spaces</h2>
+          <Link href="/spaces" className="px-6 py-3 bg-brand-bg-main shadow-none border border-brand-text-muted/30 text-xs tracking-wide uppercase font-medium text-brand-text-main hover:bg-brand-primary hover:text-brand-bg-surface hover:border-brand-primary transition-colors duration-500 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:ring-offset-1 focus-visible:ring-offset-brand-bg-main">
             View all properties
           </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {FEATURED_SPACES.map((space) => (
-            <div key={space.id} className="bg-white p-5 rounded-3xl shadow-lg border border-black/5 flex flex-col group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out">
+            <div key={space.id} className="bg-brand-bg-surface p-5 rounded-3xl shadow-lg border border-black/5 flex flex-col group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out">
               <div className="relative w-full h-56 bg-slate-200 rounded-2xl mb-6 overflow-hidden">
                 <Image 
                   src={space.image}
@@ -392,10 +392,10 @@ function SpacesPreview() {
                   referrerPolicy="no-referrer"
                 />
               </div>
-              <h3 className="font-bold text-xl mb-3 px-2">{space.title}</h3>
+              <h3 className="font-serif font-bold text-xl mb-3 px-2">{space.title}</h3>
               <div className="flex flex-wrap gap-2 mb-5 px-2">
                 {space.amenities.map(amenity => (
-                  <span key={amenity} className="text-xs px-3 py-1.5 bg-[#F9F7F3] rounded-full font-bold uppercase tracking-wider text-[#2D3142]/80 shadow-sm">
+                  <span key={amenity} className="text-xs px-3 py-1.5 bg-brand-bg-main rounded-full font-bold uppercase tracking-wider text-brand-text-main/80 shadow-sm">
                     {amenity}
                   </span>
                 ))}
@@ -404,7 +404,7 @@ function SpacesPreview() {
                 href={getWhatsAppLink(WHATSAPP_MESSAGES.spaceInquiry(space.title))}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full mt-auto py-3.5 text-center text-sm bg-transparent border-2 border-[#E07A5F]/20 text-[#2D3142] hover:bg-[#E07A5F] hover:border-[#E07A5F] hover:text-white rounded-full font-bold transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E07A5F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F9F7F3]"
+                className="w-full mt-auto py-3.5 text-center text-xs tracking-wide uppercase bg-transparent border border-brand-primary/20 text-brand-text-main hover:bg-brand-primary hover:border-brand-primary hover:text-brand-bg-surface font-medium transition-colors duration-500 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:ring-offset-1 focus-visible:ring-offset-brand-bg-main"
               >
                 Check Availability
               </a>

@@ -2,16 +2,16 @@
 
 @theme {
   /* Colors */
-  --color-brand-primary: #7A8D80;
-  --color-brand-dark-green: #5F7065;
+  --color-brand-primary: #1D2A3A;
+  --color-brand-primary-hover: #121D2A;
   --color-brand-bg-main: #EAE6E1;
   --color-brand-bg-surface: #F4F2EE;
   --color-brand-text-main: #2B2B2A;
   --color-brand-text-muted: #8C867E;
 
   /* Typography */
-  --font-serif: "Playfair Display", "Georgia", serif;
-  --font-sans: "Inter", "Helvetica Neue", sans-serif;
+  --font-serif: var(--font-serif), "Georgia", serif;
+  --font-sans: var(--font-sans), "Helvetica Neue", sans-serif;
 
   /* Luxury Spacing */
   --spacing-container-sm: 2rem;
