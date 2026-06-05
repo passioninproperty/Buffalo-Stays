@@ -75,3 +75,4 @@ Note: Do not commit `.env.local` — it's included in `.gitignore`.
 - Accessibility: focus-visible outlines and prefers-reduced-motion fallbacks are included.
 
 If you'd like, I can add deployment instructions (Vercel, Netlify) or add CI workflows next.
+..
