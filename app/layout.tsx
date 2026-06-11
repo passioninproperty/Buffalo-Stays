@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
-import { Navbar, Footer, WhatsAppFAB } from '@/components/Shared';
+import LayoutWrapper from '@/components/LayoutWrapper';
 import { SITE_DESCRIPTION, SITE_IMAGE, SITE_KEYWORDS, SITE_NAME, SITE_TWITTER_HANDLE, SITE_URL } from '@/lib/site';
 
 const inter = Inter({
@@ -80,12 +80,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="font-sans antialiased text-brand-text-main bg-brand-bg-main flex flex-col min-h-screen relative" suppressHydrationWarning>
-        <Navbar />
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
-        <WhatsAppFAB />
+        <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>
   );
