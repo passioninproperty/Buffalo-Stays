@@ -3,10 +3,33 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactElement } from 'react';
 import { MessageCircle, CheckCircle2, Home as HomeIcon, Wifi, DollarSign, Calendar, Users, HeartHandshake, Utensils, WashingMachine, Star, Lock, Sparkles } from 'lucide-react';
-import { SPACES_DATA, WHATSAPP_NUMBER } from '@/lib/constants';
+import { WHATSAPP_NUMBER } from '@/lib/constants';
 import { WorkflowSection } from '@/components/Shared';
 import { FAQAccordion } from '@/components/FAQAccordion';
 import { SITE_DESCRIPTION, SITE_IMAGE, SITE_NAME, getAbsoluteUrl } from '@/lib/site';
+import { client } from '@/sanity/lib/client';
+import { urlFor } from '@/sanity/lib/image';
+
+interface Property {
+  _id: string;
+  title: string;
+  slug: string;
+  location?: string;
+  pricePerNight?: number;
+  tags?: string[];
+  gallery?: Array<{
+    asset?: {
+      _ref?: string;
+    };
+    label?: string;
+  }>;
+  isFeatured?: boolean;
+  availabilityStatus?: string;
+  summaryText?: string;
+  amenitiesBathroom?: string[];
+  amenitiesBedroomLaundry?: string[];
+  amenitiesInternetOffice?: string[];
+}
 
 type AudienceIconKey = 'home' | 'users' | 'wifi' | 'support';
 type AmenityIconKey = 'home' | 'kitchen' | 'wifi' | 'laundry' | 'sparkles' | 'dollar' | 'storage' | 'lock' | 'chat';
@@ -57,8 +80,6 @@ const FULLY_EQUIPPED_AMENITIES: AmenityItem[] = [
   { iconKey: 'chat', title: '24/7 WhatsApp Support' },
 ];
 
-const FEATURED_SPACES = SPACES_DATA.slice(0, 3);
-
 const AUDIENCE_ICON_MAP: Record<AudienceIconKey, ReactElement> = {
   home: <HomeIcon className="w-6 h-6 text-brand-primary" />,
   users: <Users className="w-6 h-6 text-brand-primary" />,
@@ -105,7 +126,33 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
+export default async function Home() {
+  const query = `*[_type == "property"] {
+    _id,
+    title,
+    "slug": slug.current,
+    location,
+    pricePerNight,
+    tags,
+    gallery,
+    isFeatured,
+    availabilityStatus,
+    summaryText,
+    amenitiesBathroom,
+    amenitiesBedroomLaundry,
+    amenitiesInternetOffice
+  }`;
+
+  let properties: Property[] = [];
+  try {
+    properties = await client.fetch<Property[]>(query, {}, { next: { revalidate: 60 } });
+  } catch (error) {
+    console.error('Failed to fetch properties from Sanity for home page:', error);
+  }
+
+  // Find the featured property, default to the first one if not set
+  const featuredProperty = properties.find((p) => p.isFeatured) || properties[0] || null;
+
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'LodgingBusiness',
@@ -137,13 +184,13 @@ export default function Home() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-      <HeroSection />
+      <HeroSection featuredProperty={featuredProperty} />
       <StatsBanner />
       <TargetAudienceSection />
       <NarrativeSection />
       <AmenitiesGrid />
       <DesignedForStaysSection />
-      <SpacesPreview />
+      <SpacesPreview properties={properties} />
       <FAQSection />
       <WorkflowSection />
     </>
@@ -164,7 +211,14 @@ function FAQSection() {
   );
 }
 
-function HeroSection() {
+function HeroSection({ featuredProperty }: { featuredProperty: Property | null }) {
+  const title = featuredProperty?.title || 'The Rust Studio';
+  const slug = featuredProperty?.slug || 'the-rust-studio';
+  const image = featuredProperty?.gallery?.[0]
+    ? urlFor(featuredProperty.gallery[0]).width(800).height(600).url()
+    : 'https://picsum.photos/seed/buffalo-hero-longstay/800/600';
+  const location = featuredProperty?.location || 'Buffalo, NY';
+
   return (
     <section className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-10 items-center min-h-[550px] px-6 lg:px-10 py-12">
       <div className="w-full lg:w-1/2 flex flex-col gap-6">
@@ -174,7 +228,7 @@ function HeroSection() {
         <p className="text-lg text-brand-text-main/70 max-w-lg leading-relaxed">
           Discover our curated selection of warm, modern spaces designed for comfort, creativity, and extended stays that feel truly authentic.
         </p>
-        <div>
+        <div className="flex flex-wrap gap-4">
           <Link
             href="/spaces"
             className="inline-flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-hover text-brand-bg-surface px-8 py-4 uppercase tracking-[0.1em] text-sm font-medium transition-colors duration-500 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:ring-offset-1 focus-visible:ring-offset-brand-bg-main"
@@ -182,12 +236,20 @@ function HeroSection() {
             <span>Explore Spaces</span>
             <MessageCircle className="w-5 h-5" />
           </Link>
+          {featuredProperty && (
+            <Link
+              href={`/spaces/${slug}`}
+              className="inline-flex items-center gap-2 bg-white hover:bg-brand-bg-main text-brand-text-main px-8 py-4 uppercase tracking-[0.1em] text-sm font-medium border border-black/10 transition-colors duration-500 ease-out"
+            >
+              <span>View Featured Space</span>
+            </Link>
+          )}
         </div>
       </div>
       <div className="w-full lg:w-1/2 h-[450px] bg-brand-bg-main rounded-[2.5rem] shadow-2xl border-4 border-brand-bg-surface overflow-hidden relative">
         <Image 
-          src="https://picsum.photos/seed/buffalo-hero-longstay/800/600"
-          alt="Sunlit Buffalo Stays living space with warm tones, soft textiles, and modern furnishings for long-term comfort"
+          src={image}
+          alt={`Sunlit Buffalo Stays living space featuring ${title} in ${location}`}
           fill
           className="object-cover object-center"
           referrerPolicy="no-referrer"
@@ -197,7 +259,7 @@ function HeroSection() {
         <div className="absolute bottom-6 left-6 right-6 p-5 bg-brand-bg-surface/95 backdrop-blur-md rounded-2xl flex justify-between items-center shadow-lg border border-brand-bg-surface/50">
           <div>
             <p className="text-xs font-bold text-brand-primary uppercase tracking-widest mb-1">Featured</p>
-            <p className="font-bold text-brand-text-main text-lg">The Rust Studio</p>
+            <p className="font-bold text-brand-text-main text-lg">{title}</p>
           </div>
           <div className="flex -space-x-3">
              <div className="w-10 h-10 rounded-full border-2 border-brand-bg-surface bg-slate-200"></div>
@@ -367,7 +429,9 @@ function DesignedForStaysSection() {
   );
 }
 
-function SpacesPreview() {
+function SpacesPreview({ properties }: { properties: Property[] }) {
+  const displaySpaces = properties.length > 0 ? properties.slice(0, 3) : [];
+
   return (
     <section className="py-20 px-6 lg:px-10 bg-brand-bg-surface rounded-[3rem] mx-4 lg:mx-10 my-10 shadow-sm border border-black/5">
       <div className="max-w-7xl mx-auto flex flex-col gap-10">
@@ -379,33 +443,54 @@ function SpacesPreview() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {FEATURED_SPACES.map((space) => (
-            <div key={space.id} className="bg-brand-bg-surface p-5 rounded-3xl shadow-lg border border-black/5 flex flex-col group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out">
-              <div className="relative w-full h-56 bg-slate-200 rounded-2xl mb-6 overflow-hidden">
-                <Image 
-                  src={space.image}
-                  alt={`${space.title} at Buffalo Stays featuring ${space.amenities.join(', ')} and a welcoming modern interior for extended stays`}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-all duration-300 ease-in-out"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
-              <h3 className="font-serif font-bold text-xl mb-3 px-2">{space.title}</h3>
-              <div className="flex flex-wrap gap-2 mb-5 px-2">
-                {space.amenities.map(amenity => (
-                  <span key={amenity} className="text-xs px-3 py-1.5 bg-brand-bg-main rounded-full font-bold uppercase tracking-wider text-brand-text-main/80 shadow-sm">
-                    {amenity}
-                  </span>
-                ))}
-              </div>
-              <Link
-                href="/spaces"
-                className="w-full mt-auto py-3.5 text-center text-xs tracking-wide uppercase bg-transparent border border-brand-primary/20 text-brand-text-main hover:bg-brand-primary hover:border-brand-primary hover:text-brand-bg-surface font-medium transition-colors duration-500 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:ring-offset-1 focus-visible:ring-offset-brand-bg-main"
-              >
-                Check Availability
-              </Link>
+          {displaySpaces.length === 0 ? (
+            <div className="col-span-full py-10 text-center">
+              <p className="text-brand-text-main/60 font-serif">No spaces available at this time.</p>
             </div>
-          ))}
+          ) : (
+            displaySpaces.map((space) => {
+              const image = space.gallery?.[0]
+                ? urlFor(space.gallery[0]).width(600).height(400).url()
+                : "https://picsum.photos/seed/buffalo-space1/800/600";
+              
+              // Resolve tags or collect them dynamically from selected amenities
+              const tags = space.tags && space.tags.length > 0 
+                ? space.tags 
+                : [
+                    ...(space.amenitiesInternetOffice || []).slice(0, 1),
+                    ...(space.amenitiesBathroom || []).slice(0, 1),
+                    ...(space.amenitiesBedroomLaundry || []).slice(0, 1)
+                  ].filter(Boolean).slice(0, 3);
+
+              return (
+                <div key={space._id} className="bg-brand-bg-surface p-5 rounded-3xl shadow-lg border border-black/5 flex flex-col group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out">
+                  <div className="relative w-full h-56 bg-slate-200 rounded-2xl mb-6 overflow-hidden">
+                    <Image 
+                      src={image}
+                      alt={`${space.title} at Buffalo Stays`}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-all duration-300 ease-in-out"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <h3 className="font-serif font-bold text-xl mb-3 px-2">{space.title}</h3>
+                  <div className="flex flex-wrap gap-2 mb-5 px-2">
+                    {tags.map((tag: string) => (
+                      <span key={tag} className="text-xs px-3 py-1.5 bg-brand-bg-main rounded-full font-bold uppercase tracking-wider text-brand-text-main/80 shadow-sm">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <Link
+                    href={`/spaces/${space.slug}`}
+                    className="w-full mt-auto py-3.5 text-center text-xs tracking-wide uppercase bg-transparent border border-brand-primary/20 text-brand-text-main hover:bg-brand-primary hover:border-brand-primary hover:text-brand-bg-surface font-medium transition-colors duration-500 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:ring-offset-1 focus-visible:ring-offset-brand-bg-main"
+                  >
+                    Check Availability
+                  </Link>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </section>

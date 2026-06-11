@@ -2,10 +2,11 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { MapPin, Users, BedDouble, Bed, Bath, Check, ArrowLeft, Calendar, ShieldCheck, Clock } from 'lucide-react';
+import { MapPin, Users, BedDouble, Bed, Bath, ArrowLeft, Calendar, ShieldCheck, Clock } from 'lucide-react';
 import { client } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
 import { SITE_NAME, getAbsoluteUrl } from '@/lib/site';
+import { AmenityIcon } from '@/components/AmenityIcon';
 
 // Google Form Pre-fill Configuration Constants
 const GOOGLE_FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSf_YOUR_FORM_ID_HERE/viewform";
@@ -18,7 +19,10 @@ interface Property {
   pricePerNight?: number;
   minimumStay?: number;
   availabilityStatus?: string;
-  gallery?: Record<string, unknown>[];
+  gallery?: Array<{
+    asset?: { _ref?: string };
+    label?: string;
+  }>;
   tags?: string[];
   specs?: {
     guests?: number;
@@ -27,8 +31,21 @@ interface Property {
     bathrooms?: number;
   };
   detailedDescription?: string;
-  amenities?: string[];
   summaryText?: string;
+  // Grouped amenities
+  amenitiesBathroom?: string[];
+  amenitiesBedroomLaundry?: string[];
+  amenitiesEntertainment?: string[];
+  amenitiesFamily?: string[];
+  amenitiesHeatingCooling?: string[];
+  amenitiesSafety?: string[];
+  amenitiesInternetOffice?: string[];
+  amenitiesKitchenDining?: string[];
+  amenitiesLocation?: string[];
+  amenitiesOutdoor?: string[];
+  amenitiesParking?: string[];
+  amenitiesServices?: string[];
+  amenitiesUnavailable?: string[];
 }
 
 interface PageProps {
@@ -88,7 +105,19 @@ export default async function SpaceDetailPage({ params }: PageProps) {
     tags,
     specs,
     detailedDescription,
-    amenities
+    amenitiesBathroom,
+    amenitiesBedroomLaundry,
+    amenitiesEntertainment,
+    amenitiesFamily,
+    amenitiesHeatingCooling,
+    amenitiesSafety,
+    amenitiesInternetOffice,
+    amenitiesKitchenDining,
+    amenitiesLocation,
+    amenitiesOutdoor,
+    amenitiesParking,
+    amenitiesServices,
+    amenitiesUnavailable
   }`;
 
   const space = await client.fetch<Property | null>(
@@ -103,9 +132,24 @@ export default async function SpaceDetailPage({ params }: PageProps) {
 
   const galleryImages = space.gallery || [];
   const mainImage = galleryImages[0] ? urlFor(galleryImages[0]).width(800).height(600).url() : null;
-  const sideImages = galleryImages.slice(1, 5).map((img) => urlFor(img).width(400).height(300).url());
 
   const prefilledUrl = `${GOOGLE_FORM_BASE_URL}?usp=pp_url&${ENTRY_ID}=${encodeURIComponent(space.title)}`;
+
+  // Organize grouped list for rendering
+  const amenityGroups = [
+    { title: 'Bathroom', list: space.amenitiesBathroom },
+    { title: 'Bedroom and laundry', list: space.amenitiesBedroomLaundry },
+    { title: 'Entertainment', list: space.amenitiesEntertainment },
+    { title: 'Family', list: space.amenitiesFamily },
+    { title: 'Heating and cooling', list: space.amenitiesHeatingCooling },
+    { title: 'Home safety', list: space.amenitiesSafety },
+    { title: 'Internet and office', list: space.amenitiesInternetOffice },
+    { title: 'Kitchen and dining', list: space.amenitiesKitchenDining },
+    { title: 'Location features', list: space.amenitiesLocation },
+    { title: 'Outdoor', list: space.amenitiesOutdoor },
+    { title: 'Parking and facilities', list: space.amenitiesParking },
+    { title: 'Services', list: space.amenitiesServices },
+  ].filter(group => group.list && group.list.length > 0);
 
   return (
     <div className="bg-brand-bg-main min-h-screen pb-16">
@@ -157,7 +201,7 @@ export default async function SpaceDetailPage({ params }: PageProps) {
             {space.tags && space.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {space.tags.slice(0, 3).map((tag) => (
-                  <span key={tag} className="text-xs px-3 py-1 bg-white border border-black/5 rounded-full font-bold uppercase tracking-wider text-brand-text-main/60 shadow-sm">
+                  <span key={tag} className="text-xs px-3 py-1.5 bg-brand-bg-main border border-brand-border rounded-full font-bold uppercase tracking-wider text-brand-text-main/80 shadow-sm">
                     {tag}
                   </span>
                 ))}
@@ -188,24 +232,37 @@ export default async function SpaceDetailPage({ params }: PageProps) {
                       Image Loading
                     </div>
                   )}
+                  {galleryImages[0]?.label && (
+                    <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-3 py-1.5 text-xs font-bold text-white uppercase tracking-widest rounded-md z-10">
+                      {galleryImages[0].label}
+                    </div>
+                  )}
                 </div>
 
                 {/* Auxiliary Mosaic Stack */}
                 <div className="col-span-2 grid grid-cols-2 gap-4 h-full">
-                  {sideImages.map((src, idx) => (
-                    <div key={idx} className="relative h-full w-full overflow-hidden bg-slate-200 group">
-                      <Image
-                        src={src}
-                        alt={`${space.title} view ${idx + 2}`}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(max-width: 768px) 50vw, 25vw"
-                      />
-                    </div>
-                  ))}
+                  {galleryImages.slice(1, 5).map((img, idx) => {
+                    const src = urlFor(img).width(400).height(300).url();
+                    return (
+                      <div key={idx} className="relative h-full w-full overflow-hidden bg-slate-200 group">
+                        <Image
+                          src={src}
+                          alt={`${space.title} view ${idx + 2}`}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          sizes="(max-width: 768px) 50vw, 25vw"
+                        />
+                        {img.label && (
+                          <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider rounded z-10">
+                            {img.label}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                   {/* Fallback items if gallery has fewer than 5 images */}
-                  {Array.from({ length: Math.max(0, 4 - sideImages.length) }).map((_, idx) => (
-                    <div key={`pad-${idx}`} className="bg-white/50 border border-black/5 flex items-center justify-center rounded-none text-brand-text-main/10 font-serif font-bold tracking-widest text-sm uppercase">
+                  {Array.from({ length: Math.max(0, 4 - galleryImages.slice(1, 5).length) }).map((_, idx) => (
+                    <div key={`pad-${idx}`} className="bg-brand-bg-surface/50 border border-brand-border flex items-center justify-center rounded-none text-brand-text-main/10 font-serif font-bold tracking-widest text-sm uppercase">
                       Buffalo Stays
                     </div>
                   ))}
@@ -225,13 +282,18 @@ export default async function SpaceDetailPage({ params }: PageProps) {
                         className="object-cover"
                         sizes="100vw"
                       />
+                      {img.label && (
+                        <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-3 py-1.5 text-xs font-bold text-white uppercase tracking-widest rounded-md z-10">
+                          {img.label}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
               </div>
             </>
           ) : (
-            <div className="h-64 bg-white shadow-sm border border-black/5 flex items-center justify-center rounded-3xl text-brand-text-main/40 font-serif">
+            <div className="h-64 bg-brand-bg-surface shadow-sm border border-brand-border flex items-center justify-center rounded-3xl text-brand-text-main/40 font-serif">
               No photos available for this property
             </div>
           )}
@@ -245,7 +307,7 @@ export default async function SpaceDetailPage({ params }: PageProps) {
             
             {/* Core Specs Row */}
             {space.specs && (
-              <div className="flex flex-wrap gap-x-8 gap-y-4 py-6 border-b border-black/5 text-sm font-medium text-brand-text-main/80">
+              <div className="flex flex-wrap gap-x-8 gap-y-4 py-6 border-b border-brand-border text-sm font-medium text-brand-text-main/80">
                 {space.specs.guests && (
                   <div className="flex items-center gap-2">
                     <Users className="w-5 h-5 text-brand-primary shrink-0" />
@@ -274,7 +336,7 @@ export default async function SpaceDetailPage({ params }: PageProps) {
             )}
 
             {/* Detailed Description */}
-            <div className="py-8 border-b border-black/5">
+            <div className="py-8 border-b border-brand-border">
               <h2 className="font-serif text-2xl font-bold mb-4 text-brand-text-main">
                 About this space
               </h2>
@@ -283,21 +345,49 @@ export default async function SpaceDetailPage({ params }: PageProps) {
               </div>
             </div>
 
-            {/* Amenities Grid */}
-            {space.amenities && space.amenities.length > 0 && (
-              <div className="py-8">
-                <h2 className="font-serif text-2xl font-bold mb-6 text-brand-text-main">
+            {/* Grouped Amenities Grid */}
+            {amenityGroups.length > 0 && (
+              <div className="py-8 border-b border-brand-border">
+                <h2 className="font-serif text-2xl font-bold mb-8 text-brand-text-main">
                   What this space offers
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {space.amenities.map((amenity) => (
-                    <div key={amenity} className="flex items-center gap-3 text-brand-text-main/80">
-                      <div className="w-8 h-8 rounded-full bg-brand-primary/5 flex items-center justify-center text-brand-primary shrink-0">
-                        <Check className="w-4 h-4" />
+                <div className="space-y-8">
+                  {amenityGroups.map((group) => (
+                    <div key={group.title} className="border-b border-brand-border pb-6 last:border-b-0 last:pb-0">
+                      <h3 className="font-serif text-sm font-bold text-brand-text-main/50 mb-4 uppercase tracking-widest">
+                        {group.title}
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {group.list!.map((amenity) => (
+                          <div key={amenity} className="flex items-center gap-3 text-brand-text-main/80">
+                            <div className="w-8 h-8 rounded-full bg-brand-primary/5 flex items-center justify-center text-brand-primary shrink-0">
+                              <AmenityIcon name={amenity} className="w-4 h-4 text-brand-primary" />
+                            </div>
+                            <span className="text-sm font-semibold">{amenity}</span>
+                          </div>
+                        ))}
                       </div>
-                      <span className="text-sm font-semibold">{amenity}</span>
                     </div>
                   ))}
+
+                  {/* Unavailable / Not included list */}
+                  {space.amenitiesUnavailable && space.amenitiesUnavailable.length > 0 && (
+                    <div className="pt-2">
+                      <h3 className="font-serif text-sm font-bold text-brand-text-main/40 mb-4 uppercase tracking-widest">
+                        Not included
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {space.amenitiesUnavailable.map((amenity) => (
+                          <div key={amenity} className="flex items-center gap-3 text-brand-text-main/40 line-through">
+                            <div className="w-8 h-8 rounded-full bg-brand-text-main/5 flex items-center justify-center text-brand-text-main/30 shrink-0">
+                              <AmenityIcon name={amenity} className="w-4 h-4 text-brand-text-main/30" />
+                            </div>
+                            <span className="text-sm font-medium">Unavailable: {amenity}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -306,7 +396,7 @@ export default async function SpaceDetailPage({ params }: PageProps) {
 
           {/* Right Column (1/3 width on desktop - Floating Booking Card) */}
           <div className="lg:col-span-1">
-            <div className="sticky top-28 bg-white p-6 rounded-3xl shadow-xl border border-black/5 flex flex-col">
+            <div className="sticky top-28 bg-brand-bg-surface p-6 rounded-3xl shadow-xl border border-brand-border flex flex-col">
               
               {/* Pricing & Min Nights */}
               <div className="mb-6">
@@ -324,7 +414,7 @@ export default async function SpaceDetailPage({ params }: PageProps) {
               </div>
 
               {/* Highlight Perks Grid */}
-              <div className="space-y-4 mb-6 border-y border-black/5 py-4 text-xs font-semibold text-brand-text-main/80 uppercase tracking-wider">
+              <div className="space-y-4 mb-6 border-y border-brand-border py-4 text-xs font-semibold text-brand-text-main/80 uppercase tracking-wider">
                 <div className="flex items-center gap-3">
                   <Calendar className="w-4 h-4 text-brand-primary shrink-0" />
                   <span>Flexible long-term leases</span>

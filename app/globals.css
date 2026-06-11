@@ -8,6 +8,7 @@
   --color-brand-bg-surface: #F4F2EE;
   --color-brand-text-main: #2B2B2A;
   --color-brand-text-muted: #8C867E;
+  --color-brand-border: rgba(0, 0, 0, 0.05);
 
   /* Typography */
   --font-serif: var(--font-serif), "Georgia", serif;
