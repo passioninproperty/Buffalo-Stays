@@ -1,14 +1,30 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Menu, X } from 'lucide-react';
 import { getWhatsAppLink } from '@/lib/constants';
 
 const LOGO_WIDTH = 240;
 const LOGO_HEIGHT = 72;
 
 export function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   return (
-    <header className="sticky top-0 z-50 bg-brand-bg-main/80 backdrop-blur-md border-b border-black/5">
+    <header className="sticky top-0 z-50 bg-brand-bg-main/80 backdrop-blur-md border-b border-brand-border">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 lg:px-10 py-6">
         <Link
           href="/"
@@ -39,6 +55,93 @@ export function Navbar() {
           >
             Book Now
           </Link>
+          <button
+            onClick={() => setIsOpen(true)}
+            className="lg:hidden flex items-center justify-center p-2 -mr-2 text-brand-text-main hover:text-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded-lg transition-colors"
+            aria-expanded={isOpen}
+            aria-label="Open main menu"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+        </nav>
+      </div>
+
+      {/* Mobile Drawer Backdrop */}
+      <div
+        className={`fixed inset-0 z-40 bg-black/45 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setIsOpen(false)}
+      />
+
+      {/* Mobile Drawer Panel */}
+      <div
+        className={`fixed top-0 right-0 bottom-0 z-50 w-full max-w-xs sm:max-w-sm bg-brand-bg-surface border-l border-brand-border p-6 shadow-2xl transition-transform duration-300 ease-out transform lg:hidden ${
+          isOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="flex items-center justify-between pb-6 border-b border-brand-border">
+          <Link
+            href="/"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded-xl"
+            aria-label="Buffalo Stays home"
+          >
+            <Image
+              src="/logo.png"
+              alt="Buffalo Stays logo"
+              width={LOGO_WIDTH}
+              height={LOGO_HEIGHT}
+              className="h-10 w-auto object-contain"
+            />
+          </Link>
+          <button
+            onClick={() => setIsOpen(false)}
+            className="flex items-center justify-center p-2 -mr-2 text-brand-text-main hover:text-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded-lg transition-colors"
+            aria-label="Close menu"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <nav className="flex flex-col gap-5 py-8">
+          <Link
+            href="/spaces"
+            onClick={() => setIsOpen(false)}
+            className="text-base font-semibold text-brand-text-main hover:text-brand-primary transition-colors duration-200 py-1"
+          >
+            The Spaces
+          </Link>
+          <Link
+            href="/#experience"
+            onClick={() => setIsOpen(false)}
+            className="text-base font-semibold text-brand-text-main hover:text-brand-primary transition-colors duration-200 py-1"
+          >
+            Experience
+          </Link>
+          <Link
+            href="/#amenities"
+            onClick={() => setIsOpen(false)}
+            className="text-base font-semibold text-brand-text-main hover:text-brand-primary transition-colors duration-200 py-1"
+          >
+            Amenities
+          </Link>
+          <Link
+            href="/#how-it-works"
+            onClick={() => setIsOpen(false)}
+            className="text-base font-semibold text-brand-text-main hover:text-brand-primary transition-colors duration-200 py-1"
+          >
+            How It Works
+          </Link>
+          <div className="pt-6 border-t border-brand-border mt-2">
+            <Link
+              href="/spaces"
+              onClick={() => setIsOpen(false)}
+              className="block w-full text-center bg-brand-primary text-brand-bg-surface py-3 border border-brand-primary uppercase tracking-[0.1em] text-xs font-semibold hover:bg-brand-primary-hover shadow-none transition-colors duration-500 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary"
+            >
+              Book Now
+            </Link>
+          </div>
         </nav>
       </div>
     </header>

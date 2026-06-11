@@ -15,6 +15,9 @@ interface Property {
   gallery?: Record<string, unknown>[];
   availabilityStatus?: string;
   summaryText?: string;
+  amenitiesInternetOffice?: string[];
+  amenitiesBathroom?: string[];
+  amenitiesBedroomLaundry?: string[];
 }
 
 export const metadata: Metadata = {
@@ -54,7 +57,10 @@ export default async function SpacesPage() {
     tags,
     gallery,
     availabilityStatus,
-    summaryText
+    summaryText,
+    amenitiesInternetOffice,
+    amenitiesBathroom,
+    amenitiesBedroomLaundry
   }`;
 
   let properties: Property[] = [];
@@ -112,7 +118,7 @@ export default async function SpacesPage() {
         </div>
       </section>
 
-      <section className="py-12 px-6 lg:px-10 bg-white shadow-sm border-t border-black/5 flex-1 rounded-t-[3rem]">
+      <section className="py-12 px-6 lg:px-10 bg-white shadow-sm border-t border-brand-border flex-1 rounded-t-[3rem]">
         <div className="max-w-7xl mx-auto">
           <h2 className="font-serif sr-only">Available Extended Stay Rentals in Buffalo, NY</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -129,8 +135,8 @@ export default async function SpacesPage() {
                   : null;
 
                 return (
-                  <div key={space._id} className="bg-white p-5 rounded-3xl shadow-lg border border-black/5 flex flex-col group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out">
-                    <div className="relative w-full h-64 bg-slate-200 rounded-2xl mb-6 overflow-hidden">
+                  <div key={space._id} className="bg-brand-bg-surface p-5 rounded-3xl shadow-lg border border-brand-border flex flex-col group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out">
+                    <div className="aspect-[4/3] w-full rounded-2xl overflow-hidden relative bg-slate-200 mb-6">
                       {imageUrl ? (
                         <Image 
                           src={imageUrl}
@@ -152,13 +158,20 @@ export default async function SpacesPage() {
                     </div>
                     <h3 className="font-serif font-bold text-2xl mb-3 px-2">{space.title}</h3>
                     <div className="flex flex-wrap gap-2 mb-5 px-2">
-                      {(space.tags || []).map((tag) => (
+                      {(space.tags && space.tags.length > 0
+                        ? space.tags
+                        : [
+                            ...(space.amenitiesInternetOffice || []).slice(0, 1),
+                            ...(space.amenitiesBathroom || []).slice(0, 1),
+                            ...(space.amenitiesBedroomLaundry || []).slice(0, 1)
+                          ].filter(Boolean).slice(0, 3)
+                      ).map((tag) => (
                         <span key={tag} className="text-xs px-3 py-1.5 bg-brand-bg-main rounded-full font-bold uppercase tracking-wider text-brand-text-main/80 shadow-sm">
                           {tag}
                         </span>
                       ))}
                     </div>
-                    <p className="text-sm text-brand-text-main/70 mb-8 px-2 flex-grow line-clamp-3 leading-relaxed">
+                    <p className="text-sm text-brand-text-main/70 mb-8 px-2 flex-grow line-clamp-2 min-h-[40px] leading-relaxed">
                       {space.summaryText || 'Discover a curated selection of warm, modern spaces designed for comfort, creativity, and extended stays.'}
                     </p>
                     <Link
