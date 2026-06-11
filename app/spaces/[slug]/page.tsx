@@ -1,0 +1,366 @@
+import type { Metadata } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { MapPin, Users, BedDouble, Bed, Bath, Check, ArrowLeft, Calendar, ShieldCheck, Clock } from 'lucide-react';
+import { client } from '@/sanity/lib/client';
+import { urlFor } from '@/sanity/lib/image';
+import { SITE_NAME, getAbsoluteUrl } from '@/lib/site';
+
+// Google Form Pre-fill Configuration Constants
+const GOOGLE_FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSf_YOUR_FORM_ID_HERE/viewform";
+// The following entry ID corresponds to the pre-filled input parameter for the property's name/title in Google Forms
+const ENTRY_ID = "entry.123456789";
+
+interface Property {
+  title: string;
+  location?: string;
+  pricePerNight?: number;
+  minimumStay?: number;
+  availabilityStatus?: string;
+  gallery?: Record<string, unknown>[];
+  tags?: string[];
+  specs?: {
+    guests?: number;
+    bedrooms?: number;
+    beds?: number;
+    bathrooms?: number;
+  };
+  detailedDescription?: string;
+  amenities?: string[];
+  summaryText?: string;
+}
+
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const query = `*[_type == "property" && slug.current == $slug][0] {
+    title,
+    location,
+    summaryText
+  }`;
+
+  const space = await client.fetch<Pick<Property, 'title' | 'location'> & { summaryText?: string } | null>(
+    query,
+    { slug },
+    { next: { revalidate: 60 } }
+  );
+
+  if (!space) {
+    return {
+      title: 'Property Not Found',
+    };
+  }
+
+  const title = `${space.title} | ${SITE_NAME}`;
+  const description = space.summaryText || `Explore ${space.title} in ${space.location || 'Buffalo'} from Buffalo Stays.`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/spaces/${slug}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: getAbsoluteUrl(`/spaces/${slug}`),
+    },
+    twitter: {
+      title,
+      description,
+    },
+  };
+}
+
+export default async function SpaceDetailPage({ params }: PageProps) {
+  const { slug } = await params;
+  const query = `*[_type == "property" && slug.current == $slug][0] {
+    title,
+    location,
+    pricePerNight,
+    minimumStay,
+    availabilityStatus,
+    gallery,
+    tags,
+    specs,
+    detailedDescription,
+    amenities
+  }`;
+
+  const space = await client.fetch<Property | null>(
+    query,
+    { slug },
+    { next: { revalidate: 60 } }
+  );
+
+  if (!space) {
+    notFound();
+  }
+
+  const galleryImages = space.gallery || [];
+  const mainImage = galleryImages[0] ? urlFor(galleryImages[0]).width(800).height(600).url() : null;
+  const sideImages = galleryImages.slice(1, 5).map((img) => urlFor(img).width(400).height(300).url());
+
+  const prefilledUrl = `${GOOGLE_FORM_BASE_URL}?usp=pp_url&${ENTRY_ID}=${encodeURIComponent(space.title)}`;
+
+  return (
+    <div className="bg-brand-bg-main min-h-screen pb-16">
+      {/* Detail Container */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10">
+        
+        {/* Navigation Breadcrumb */}
+        <div className="mb-6 flex items-center justify-between">
+          <Link
+            href="/spaces"
+            className="inline-flex items-center gap-2 text-sm text-brand-text-main/70 hover:text-brand-primary font-medium transition-colors group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+            Back to all spaces
+          </Link>
+          <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-brand-text-main/50 uppercase tracking-widest">
+            <span>Home</span>
+            <span>/</span>
+            <span>Spaces</span>
+            <span>/</span>
+            <span className="text-brand-text-main font-medium">{space.title}</span>
+          </div>
+        </div>
+
+        {/* Header Section */}
+        <header className="mb-8">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+              <h1 className="font-serif text-3xl md:text-5xl font-bold text-brand-text-main leading-tight mb-3">
+                {space.title}
+              </h1>
+              <div className="flex flex-wrap items-center gap-4 text-brand-text-main/70 text-sm">
+                {space.location && (
+                  <div className="flex items-center gap-1.5 font-medium">
+                    <MapPin className="w-4 h-4 text-brand-primary shrink-0" />
+                    <span>{space.location}</span>
+                  </div>
+                )}
+                {space.availabilityStatus && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-primary/10 text-brand-primary text-xs font-bold uppercase tracking-wider">
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand-primary animate-pulse" />
+                    {space.availabilityStatus}
+                  </span>
+                )}
+              </div>
+            </div>
+            
+            {/* Direct Tags / Badges */}
+            {space.tags && space.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {space.tags.slice(0, 3).map((tag) => (
+                  <span key={tag} className="text-xs px-3 py-1 bg-white border border-black/5 rounded-full font-bold uppercase tracking-wider text-brand-text-main/60 shadow-sm">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </header>
+
+        {/* Photo Grid Gallery Section */}
+        <div className="mb-10">
+          {galleryImages.length > 0 ? (
+            <>
+              {/* Desktop Mosaic Layout */}
+              <div className="hidden md:grid grid-cols-4 gap-4 h-[450px] overflow-hidden rounded-3xl">
+                {/* Main Large Image */}
+                <div className="col-span-2 relative h-full w-full overflow-hidden bg-slate-200 group">
+                  {mainImage ? (
+                    <Image
+                      src={mainImage}
+                      alt={`${space.title} primary view`}
+                      fill
+                      className="object-cover group-hover:scale-[1.01] transition-transform duration-500"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      priority
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-brand-text-main/40 font-serif">
+                      Image Loading
+                    </div>
+                  )}
+                </div>
+
+                {/* Auxiliary Mosaic Stack */}
+                <div className="col-span-2 grid grid-cols-2 gap-4 h-full">
+                  {sideImages.map((src, idx) => (
+                    <div key={idx} className="relative h-full w-full overflow-hidden bg-slate-200 group">
+                      <Image
+                        src={src}
+                        alt={`${space.title} view ${idx + 2}`}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                      />
+                    </div>
+                  ))}
+                  {/* Fallback items if gallery has fewer than 5 images */}
+                  {Array.from({ length: Math.max(0, 4 - sideImages.length) }).map((_, idx) => (
+                    <div key={`pad-${idx}`} className="bg-white/50 border border-black/5 flex items-center justify-center rounded-none text-brand-text-main/10 font-serif font-bold tracking-widest text-sm uppercase">
+                      Buffalo Stays
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Mobile Carousel Swipeable Layout */}
+              <div className="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none h-[300px] rounded-3xl">
+                {galleryImages.map((img, idx) => {
+                  const src = urlFor(img).width(600).height(450).url();
+                  return (
+                    <div key={idx} className="snap-start shrink-0 w-full h-full relative">
+                      <Image
+                        src={src}
+                        alt={`${space.title} gallery ${idx + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="100vw"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div className="h-64 bg-white shadow-sm border border-black/5 flex items-center justify-center rounded-3xl text-brand-text-main/40 font-serif">
+              No photos available for this property
+            </div>
+          )}
+        </div>
+
+        {/* Two-Column Workspace Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          
+          {/* Left Column (2/3 width on desktop) */}
+          <div className="lg:col-span-2 flex flex-col">
+            
+            {/* Core Specs Row */}
+            {space.specs && (
+              <div className="flex flex-wrap gap-x-8 gap-y-4 py-6 border-b border-black/5 text-sm font-medium text-brand-text-main/80">
+                {space.specs.guests && (
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-brand-primary shrink-0" />
+                    <span>{space.specs.guests} {space.specs.guests === 1 ? 'Guest' : 'Guests'}</span>
+                  </div>
+                )}
+                {space.specs.bedrooms && (
+                  <div className="flex items-center gap-2">
+                    <BedDouble className="w-5 h-5 text-brand-primary shrink-0" />
+                    <span>{space.specs.bedrooms} {space.specs.bedrooms === 1 ? 'Bedroom' : 'Bedrooms'}</span>
+                  </div>
+                )}
+                {space.specs.beds && (
+                  <div className="flex items-center gap-2">
+                    <Bed className="w-5 h-5 text-brand-primary shrink-0" />
+                    <span>{space.specs.beds} {space.specs.beds === 1 ? 'Bed' : 'Beds'}</span>
+                  </div>
+                )}
+                {space.specs.bathrooms && (
+                  <div className="flex items-center gap-2">
+                    <Bath className="w-5 h-5 text-brand-primary shrink-0" />
+                    <span>{space.specs.bathrooms} {space.specs.bathrooms === 1 ? 'Bathroom' : 'Bathrooms'}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Detailed Description */}
+            <div className="py-8 border-b border-black/5">
+              <h2 className="font-serif text-2xl font-bold mb-4 text-brand-text-main">
+                About this space
+              </h2>
+              <div className="text-brand-text-main/80 leading-relaxed space-y-4 whitespace-pre-line text-base">
+                {space.detailedDescription || 'No description is currently available for this workspace/extended stay. Contact us for direct inquiries.'}
+              </div>
+            </div>
+
+            {/* Amenities Grid */}
+            {space.amenities && space.amenities.length > 0 && (
+              <div className="py-8">
+                <h2 className="font-serif text-2xl font-bold mb-6 text-brand-text-main">
+                  What this space offers
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {space.amenities.map((amenity) => (
+                    <div key={amenity} className="flex items-center gap-3 text-brand-text-main/80">
+                      <div className="w-8 h-8 rounded-full bg-brand-primary/5 flex items-center justify-center text-brand-primary shrink-0">
+                        <Check className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm font-semibold">{amenity}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          </div>
+
+          {/* Right Column (1/3 width on desktop - Floating Booking Card) */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-28 bg-white p-6 rounded-3xl shadow-xl border border-black/5 flex flex-col">
+              
+              {/* Pricing & Min Nights */}
+              <div className="mb-6">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold text-brand-text-main">
+                    £{space.pricePerNight || '—'}
+                  </span>
+                  <span className="text-sm font-normal text-brand-text-main/60">/ night</span>
+                </div>
+                {space.minimumStay && (
+                  <div className="text-xs text-brand-text-main/60 mt-1 uppercase tracking-wider font-bold">
+                    {space.minimumStay} night minimum stay
+                  </div>
+                )}
+              </div>
+
+              {/* Highlight Perks Grid */}
+              <div className="space-y-4 mb-6 border-y border-black/5 py-4 text-xs font-semibold text-brand-text-main/80 uppercase tracking-wider">
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-4 h-4 text-brand-primary shrink-0" />
+                  <span>Flexible long-term leases</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <ShieldCheck className="w-4 h-4 text-brand-primary shrink-0" />
+                  <span>Fully verified premium stay</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Clock className="w-4 h-4 text-brand-primary shrink-0" />
+                  <span>Fast approval & communication</span>
+                </div>
+              </div>
+
+              {/* Call To Action */}
+              <a
+                href={prefilledUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-4 text-center text-xs tracking-[0.15em] uppercase bg-brand-primary text-brand-bg-surface hover:bg-brand-primary-hover border border-brand-primary font-bold shadow-md transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+              >
+                Check Availability
+              </a>
+
+              {/* Value Propositions */}
+              <div className="mt-4 text-center text-xs text-brand-text-main/50 font-medium">
+                <p className="mb-1">No payment required today</p>
+                <p>Google Form inquiry is 100% free</p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  );
+}

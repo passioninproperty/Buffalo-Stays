@@ -1,3 +1,8 @@
+/**
+ * DEPRECATED - App now utilizes live Sanity.io Content Lake fetching.
+ * The mock properties array (SPACES_DATA) is kept here only for legacy references.
+ */
+
 const DEFAULT_WHATSAPP_NUMBER = '1234567890';
 
 function normalizeWhatsAppNumber(value: string | undefined) {

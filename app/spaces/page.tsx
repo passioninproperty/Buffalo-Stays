@@ -1,7 +1,21 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import { getWhatsAppLink, SPACES_DATA, WHATSAPP_MESSAGES } from '@/lib/constants';
+import Link from 'next/link';
+import { client } from '@/sanity/lib/client';
+import { urlFor } from '@/sanity/lib/image';
 import { SITE_DESCRIPTION, SITE_IMAGE, SITE_NAME, getAbsoluteUrl } from '@/lib/site';
+
+interface Property {
+  _id: string;
+  title: string;
+  slug: string;
+  location?: string;
+  pricePerNight?: number;
+  tags?: string[];
+  gallery?: Record<string, unknown>[];
+  availabilityStatus?: string;
+  summaryText?: string;
+}
 
 export const metadata: Metadata = {
   title: 'Furnished Rentals & Extended Stay Spaces',
@@ -30,27 +44,54 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SpacesPage() {
+export default async function SpacesPage() {
+  const query = `*[_type == "property"] {
+    _id,
+    title,
+    "slug": slug.current,
+    location,
+    pricePerNight,
+    tags,
+    gallery,
+    availabilityStatus,
+    summaryText
+  }`;
+
+  let properties: Property[] = [];
+  try {
+    properties = await client.fetch<Property[]>(
+      query,
+      {},
+      {
+        next: { revalidate: 60 },
+      }
+    );
+  } catch (error) {
+    console.error('Failed to fetch properties from Sanity:', error);
+  }
+
   const spacesSchema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    itemListElement: SPACES_DATA.map((space, index) => ({
+    itemListElement: properties.map((space, index) => ({
       '@type': 'ListItem',
       position: index + 1,
       item: {
         '@type': 'Accommodation',
         name: space.title,
-        description: space.description,
-        image: getAbsoluteUrl(space.image.startsWith('http') ? space.image : space.image),
+        description: space.summaryText || '',
+        image: space.gallery?.[0] 
+          ? urlFor(space.gallery[0]).width(600).height(400).url() 
+          : getAbsoluteUrl(SITE_IMAGE),
         address: {
           '@type': 'PostalAddress',
           addressLocality: 'Buffalo',
           addressRegion: 'NY',
           addressCountry: 'US',
         },
-        amenityFeature: space.amenities.map((amenity) => ({
+        amenityFeature: (space.tags || []).map((tag) => ({
           '@type': 'LocationFeatureSpecification',
-          name: amenity,
+          name: tag,
           value: true,
         })),
       },
@@ -75,41 +116,61 @@ export default function SpacesPage() {
         <div className="max-w-7xl mx-auto">
           <h2 className="font-serif sr-only">Available Extended Stay Rentals in Buffalo, NY</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {SPACES_DATA.map((space) => (
-              <div key={space.id} className="bg-white p-5 rounded-3xl shadow-lg border border-black/5 flex flex-col group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out">
-                <div className="relative w-full h-64 bg-slate-200 rounded-2xl mb-6 overflow-hidden">
-                  <Image 
-                    src={space.image}
-                    alt={`${space.title} at Buffalo Stays featuring ${space.amenities.join(', ')} and a premium home-like setup for longer stays`}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-all duration-300 ease-in-out"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm text-xs font-bold text-brand-primary uppercase tracking-widest">
-                    Available
-                  </div>
-                </div>
-                <h3 className="font-serif font-bold text-2xl mb-3 px-2">{space.title}</h3>
-                <div className="flex flex-wrap gap-2 mb-5 px-2">
-                  {space.amenities.map(amenity => (
-                    <span key={amenity} className="text-xs px-3 py-1.5 bg-brand-bg-main rounded-full font-bold uppercase tracking-wider text-brand-text-main/80 shadow-sm">
-                      {amenity}
-                    </span>
-                  ))}
-                </div>
-                <p className="text-sm text-brand-text-main/70 mb-8 px-2 flex-grow line-clamp-3 leading-relaxed">
-                  {space.description}
+            {properties.length === 0 ? (
+              <div className="col-span-full py-20 text-center">
+                <p className="text-lg text-brand-text-main/60 font-serif">
+                  No accommodations available at this time.
                 </p>
-                <a
-                  href={getWhatsAppLink(WHATSAPP_MESSAGES.spaceInquiry(space.title))}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-4 text-center text-xs tracking-[0.1em] uppercase bg-brand-primary text-brand-bg-surface hover:bg-brand-primary-hover border border-brand-primary font-medium transition-colors duration-500 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:ring-offset-1 focus-visible:ring-offset-brand-bg-main"
-                >
-                  Check Availability
-                </a>
               </div>
-            ))}
+            ) : (
+              properties.map((space) => {
+                const imageUrl = space.gallery?.[0]
+                  ? urlFor(space.gallery[0]).width(600).height(400).url()
+                  : null;
+
+                return (
+                  <div key={space._id} className="bg-white p-5 rounded-3xl shadow-lg border border-black/5 flex flex-col group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out">
+                    <div className="relative w-full h-64 bg-slate-200 rounded-2xl mb-6 overflow-hidden">
+                      {imageUrl ? (
+                        <Image 
+                          src={imageUrl}
+                          alt={`${space.title} at Buffalo Stays`}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-all duration-300 ease-in-out"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-brand-bg-main flex items-center justify-center text-brand-text-main/40 font-serif text-lg font-semibold">
+                          No Image Available
+                        </div>
+                      )}
+                      {space.availabilityStatus && (
+                        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm text-xs font-bold text-brand-primary uppercase tracking-widest">
+                          {space.availabilityStatus}
+                        </div>
+                      )}
+                    </div>
+                    <h3 className="font-serif font-bold text-2xl mb-3 px-2">{space.title}</h3>
+                    <div className="flex flex-wrap gap-2 mb-5 px-2">
+                      {(space.tags || []).map((tag) => (
+                        <span key={tag} className="text-xs px-3 py-1.5 bg-brand-bg-main rounded-full font-bold uppercase tracking-wider text-brand-text-main/80 shadow-sm">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="text-sm text-brand-text-main/70 mb-8 px-2 flex-grow line-clamp-3 leading-relaxed">
+                      {space.summaryText || 'Discover a curated selection of warm, modern spaces designed for comfort, creativity, and extended stays.'}
+                    </p>
+                    <Link
+                      href={`/spaces/${space.slug}`}
+                      className="w-full py-4 text-center text-xs tracking-[0.1em] uppercase bg-brand-primary text-brand-bg-surface hover:bg-brand-primary-hover border border-brand-primary font-medium transition-colors duration-500 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:ring-offset-1 focus-visible:ring-offset-brand-bg-main"
+                    >
+                      View Details
+                    </Link>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </section>

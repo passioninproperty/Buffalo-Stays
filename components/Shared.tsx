@@ -33,14 +33,12 @@ export function Navbar() {
           <Link href="/#experience" className="hidden lg:block hover:text-brand-primary hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg-main rounded-lg">Experience</Link>
           <Link href="/#amenities" className="hidden lg:block hover:text-brand-primary hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg-main rounded-lg">Amenities</Link>
           <Link href="/#how-it-works" className="hidden lg:block hover:text-brand-primary hover:-translate-y-0.5 transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg-main rounded-lg">How It Works</Link>
-          <a
-            href={getWhatsAppLink()}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/spaces"
             className="bg-brand-primary text-brand-bg-surface px-6 py-2.5 border border-brand-primary uppercase tracking-[0.1em] text-xs font-medium hover:bg-brand-primary-hover shadow-none transition-colors duration-500 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary"
           >
             Book Now
-          </a>
+          </Link>
         </nav>
       </div>
     </header>
@@ -101,7 +99,7 @@ export function WorkflowSection() {
             <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center font-bold shrink-0">1</div>
             <div>
               <p className="font-bold whitespace-nowrap">Browse Spaces</p>
-              <p className="text-xs opacity-70">Find your favorite room</p>
+              <p className="text-xs opacity-70">Browse our premium, fully-serviced spaces.</p>
             </div>
           </div>
           
@@ -111,8 +109,8 @@ export function WorkflowSection() {
           <div className="flex gap-4 items-center">
             <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center font-bold shrink-0">2</div>
             <div>
-              <p className="font-bold whitespace-nowrap">Chat on WhatsApp</p>
-              <p className="text-xs opacity-70">Check dates in seconds</p>
+              <p className="font-bold whitespace-nowrap">Check Availability</p>
+              <p className="text-xs opacity-70">Select stay duration and click &apos;Check Availability&apos;.</p>
             </div>
           </div>
           
@@ -122,8 +120,8 @@ export function WorkflowSection() {
           <div className="flex gap-4 items-center">
             <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center font-bold shrink-0">3</div>
             <div>
-              <p className="font-bold whitespace-nowrap">Enjoy Your Stay</p>
-              <p className="text-xs opacity-70">Get check-in & enjoy</p>
+              <p className="font-bold whitespace-nowrap">Digital Intake</p>
+              <p className="text-xs opacity-70">Complete our quick Intake Ledger to lock in rates.</p>
             </div>
           </div>
         </div>
