@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactElement } from 'react';
 import { MessageCircle, CheckCircle2, Home as HomeIcon, Wifi, DollarSign, Calendar, Users, HeartHandshake, Utensils, WashingMachine, Star, Lock, Sparkles } from 'lucide-react';
-import { getWhatsAppLink, SPACES_DATA, WHATSAPP_MESSAGES, WHATSAPP_NUMBER } from '@/lib/constants';
+import { SPACES_DATA, WHATSAPP_NUMBER } from '@/lib/constants';
 import { WorkflowSection } from '@/components/Shared';
 import { FAQAccordion } from '@/components/FAQAccordion';
 import { SITE_DESCRIPTION, SITE_IMAGE, SITE_NAME, getAbsoluteUrl } from '@/lib/site';
@@ -175,15 +175,13 @@ function HeroSection() {
           Discover our curated selection of warm, modern spaces designed for comfort, creativity, and extended stays that feel truly authentic.
         </p>
         <div>
-          <a
-            href={getWhatsAppLink()}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/spaces"
             className="inline-flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-hover text-brand-bg-surface px-8 py-4 uppercase tracking-[0.1em] text-sm font-medium transition-colors duration-500 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:ring-offset-1 focus-visible:ring-offset-brand-bg-main"
           >
-            <span>Inquire via WhatsApp</span>
+            <span>Explore Spaces</span>
             <MessageCircle className="w-5 h-5" />
-          </a>
+          </Link>
         </div>
       </div>
       <div className="w-full lg:w-1/2 h-[450px] bg-brand-bg-main rounded-[2.5rem] shadow-2xl border-4 border-brand-bg-surface overflow-hidden relative">
@@ -400,14 +398,12 @@ function SpacesPreview() {
                   </span>
                 ))}
               </div>
-              <a
-                href={getWhatsAppLink(WHATSAPP_MESSAGES.spaceInquiry(space.title))}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/spaces"
                 className="w-full mt-auto py-3.5 text-center text-xs tracking-wide uppercase bg-transparent border border-brand-primary/20 text-brand-text-main hover:bg-brand-primary hover:border-brand-primary hover:text-brand-bg-surface font-medium transition-colors duration-500 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:ring-offset-1 focus-visible:ring-offset-brand-bg-main"
               >
                 Check Availability
-              </a>
+              </Link>
             </div>
           ))}
         </div>
