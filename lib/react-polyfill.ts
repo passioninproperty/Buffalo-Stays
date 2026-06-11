@@ -1,6 +1,6 @@
 /* eslint-disable */
 // @ts-nocheck
-import * as React from '../node_modules/react/index.js';
+import * as React from 'react';
 
 // Destructure all standard React exports including new React 19 APIs (use, useActionState, useOptimistic)
 const {
