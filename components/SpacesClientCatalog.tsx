@@ -160,9 +160,11 @@ export default function SpacesClientCatalog({ initialSpaces }: SpacesClientCatal
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredSpaces.map((space) => {
-            const featuredPhoto = space.gallery?.find((img) => img.isFeatured === true)?.image || space.gallery?.[0]?.image;
-            const imageUrl = featuredPhoto
-              ? urlFor(featuredPhoto).width(600).height(400).url()
+            const rawPhoto = space.gallery?.find((img) => img.isFeatured === true) || space.gallery?.[0];
+            const featuredPhoto = rawPhoto?.image || rawPhoto;
+            const featuredPhotoObj = featuredPhoto as { asset?: { _ref?: string }; _ref?: string };
+            const imageUrl = featuredPhotoObj && (featuredPhotoObj.asset || featuredPhotoObj._ref)
+              ? urlFor(featuredPhotoObj).width(800).height(500).url()
               : null;
 
             return (
@@ -182,8 +184,13 @@ export default function SpacesClientCatalog({ initialSpaces }: SpacesClientCatal
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   ) : (
-                    <div className="absolute inset-0 bg-brand-bg-main flex items-center justify-center text-brand-text-main/40 font-serif text-lg font-semibold">
-                      No Image Available
+                    <div className="absolute inset-0 bg-gradient-to-br from-brand-bg-surface via-brand-bg-main to-brand-bg-surface flex flex-col items-center justify-center text-center p-6 select-none">
+                      <div className="font-serif text-xs font-bold tracking-widest text-brand-primary/40 uppercase mb-2">
+                        Buffalo Stays
+                      </div>
+                      <div className="font-serif text-lg font-bold text-brand-text-main/60 line-clamp-2 px-4 font-medium">
+                        {space.title}
+                      </div>
                     </div>
                   )}
                   {space.availabilityStatus && (

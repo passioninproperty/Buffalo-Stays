@@ -113,8 +113,12 @@ export default async function SpaceDetailPage({ params }: PageProps) {
   }
 
   const galleryImages = space.gallery || [];
-  const featuredPhoto = galleryImages.find((img) => img.isFeatured === true)?.image || galleryImages[0]?.image;
-  const mainImage = featuredPhoto ? urlFor(featuredPhoto).width(800).height(600).url() : null;
+  const rawPhoto = galleryImages.find((img) => img.isFeatured === true) || galleryImages[0];
+  const featuredPhoto = rawPhoto?.image || rawPhoto;
+  const featuredPhotoObj = featuredPhoto as { asset?: { _ref?: string }; _ref?: string };
+  const mainImage = featuredPhotoObj && (featuredPhotoObj.asset || featuredPhotoObj._ref)
+    ? urlFor(featuredPhotoObj).width(800).height(600).url()
+    : null;
 
   const featuredImageItem = galleryImages.find((img) => img.isFeatured === true) || galleryImages[0];
 
@@ -217,8 +221,13 @@ export default async function SpaceDetailPage({ params }: PageProps) {
                       priority
                     />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-brand-text-main/40 font-serif">
-                      Image Loading
+                    <div className="absolute inset-0 bg-gradient-to-br from-brand-bg-surface via-brand-bg-main to-brand-bg-surface flex flex-col items-center justify-center text-center p-8 select-none">
+                      <span className="font-serif text-sm font-bold tracking-widest text-brand-primary/40 uppercase mb-3 animate-pulse">
+                        Buffalo Stays
+                      </span>
+                      <span className="font-serif text-2xl font-bold text-brand-text-main/60 px-6">
+                        {space.title}
+                      </span>
                     </div>
                   )}
                   {featuredImageItem?.photoTag && (
@@ -231,9 +240,23 @@ export default async function SpaceDetailPage({ params }: PageProps) {
                 {/* Auxiliary Mosaic Stack */}
                 <div className="col-span-2 grid grid-cols-2 gap-4 h-full">
                   {otherImages.slice(0, 4).map((img, idx) => {
-                    const photo = img.image;
-                    if (!photo) return null;
-                    const src = urlFor(photo).width(400).height(300).url();
+                    const photo = img.image || img;
+                    const photoObj = photo as { asset?: { _ref?: string }; _ref?: string };
+                    const src = photoObj && (photoObj.asset || photoObj._ref)
+                      ? urlFor(photoObj).width(400).height(300).url()
+                      : null;
+                    if (!src) {
+                      return (
+                        <div key={idx} className="relative h-full w-full overflow-hidden bg-gradient-to-br from-brand-bg-surface via-brand-bg-main to-brand-bg-surface flex flex-col items-center justify-center text-center p-4 select-none border border-brand-border">
+                          <span className="font-serif text-[10px] font-bold tracking-widest text-brand-primary/40 uppercase mb-1">
+                            Buffalo Stays
+                          </span>
+                          <span className="font-serif text-xs font-semibold text-brand-text-main/50 line-clamp-1 px-2">
+                            {space.title}
+                          </span>
+                        </div>
+                      );
+                    }
                     return (
                       <div key={idx} className="relative h-full w-full overflow-hidden bg-slate-200 group">
                         <Image
@@ -263,9 +286,23 @@ export default async function SpaceDetailPage({ params }: PageProps) {
               {/* Mobile Carousel Swipeable Layout */}
               <div className="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none h-[300px] rounded-3xl">
                 {galleryImages.map((img, idx) => {
-                  const photo = img.image;
-                  if (!photo) return null;
-                  const src = urlFor(photo).width(600).height(450).url();
+                  const photo = img.image || img;
+                  const photoObj = photo as { asset?: { _ref?: string }; _ref?: string };
+                  const src = photoObj && (photoObj.asset || photoObj._ref)
+                    ? urlFor(photoObj).width(600).height(450).url()
+                    : null;
+                  if (!src) {
+                    return (
+                      <div key={idx} className="snap-start shrink-0 w-full h-full relative bg-gradient-to-br from-brand-bg-surface via-brand-bg-main to-brand-bg-surface flex flex-col items-center justify-center text-center p-6 select-none border border-brand-border">
+                        <span className="font-serif text-xs font-bold tracking-widest text-brand-primary/40 uppercase mb-2">
+                          Buffalo Stays
+                        </span>
+                        <span className="font-serif text-sm font-semibold text-brand-text-main/50 line-clamp-2 px-4">
+                          {space.title}
+                        </span>
+                      </div>
+                    );
+                  }
                   return (
                     <div key={idx} className="snap-start shrink-0 w-full h-full relative">
                       <Image

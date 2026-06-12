@@ -93,9 +93,11 @@ export default async function SpacesPage() {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     itemListElement: properties.map((space, index) => {
-      const featuredPhoto = space.gallery?.find(img => img.isFeatured === true)?.image || space.gallery?.[0]?.image;
-      const imageUrl = featuredPhoto
-        ? urlFor(featuredPhoto).width(600).height(400).url()
+      const rawPhoto = space.gallery?.find((img) => img.isFeatured === true) || space.gallery?.[0];
+      const featuredPhoto = rawPhoto?.image || rawPhoto;
+      const featuredPhotoObj = featuredPhoto as { asset?: { _ref?: string }; _ref?: string };
+      const imageUrl = featuredPhotoObj && (featuredPhotoObj.asset || featuredPhotoObj._ref)
+        ? urlFor(featuredPhotoObj).width(800).height(500).url()
         : getAbsoluteUrl(SITE_IMAGE);
       return {
         '@type': 'ListItem',
