@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
-import Link from 'next/link';
 import { client } from '@/sanity/lib/client';
-import { urlFor } from '@/sanity/lib/image';
 import { SITE_DESCRIPTION, SITE_IMAGE, SITE_NAME, getAbsoluteUrl } from '@/lib/site';
+import SpacesClientCatalog from '@/components/SpacesClientCatalog';
 
 interface Property {
   _id: string;
@@ -12,12 +10,22 @@ interface Property {
   location?: string;
   pricePerNight?: number;
   tags?: string[];
-  gallery?: Record<string, unknown>[];
+  gallery?: Array<{
+    asset?: string;
+    isFeatured?: boolean;
+    photoTag?: string;
+  }>;
   availabilityStatus?: string;
   summaryText?: string;
-  amenitiesInternetOffice?: string[];
-  amenitiesBathroom?: string[];
-  amenitiesBedroomLaundry?: string[];
+  specs?: {
+    guests?: number;
+    bedrooms?: number;
+    beds?: number;
+    bathrooms?: number;
+  };
+  amenityStatuses?: Array<{
+    name: string;
+  }>;
 }
 
 export const metadata: Metadata = {
@@ -55,12 +63,11 @@ export default async function SpacesPage() {
     location,
     pricePerNight,
     tags,
-    gallery,
+    gallery[]{ "asset": image.asset->url, isFeatured, photoTag },
     availabilityStatus,
     summaryText,
-    amenitiesInternetOffice,
-    amenitiesBathroom,
-    amenitiesBedroomLaundry
+    specs,
+    amenityStatuses[]{ "name": amenityRef->title }
   }`;
 
   let properties: Property[] = [];
@@ -79,29 +86,31 @@ export default async function SpacesPage() {
   const spacesSchema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    itemListElement: properties.map((space, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      item: {
-        '@type': 'Accommodation',
-        name: space.title,
-        description: space.summaryText || '',
-        image: space.gallery?.[0] 
-          ? urlFor(space.gallery[0]).width(600).height(400).url() 
-          : getAbsoluteUrl(SITE_IMAGE),
-        address: {
-          '@type': 'PostalAddress',
-          addressLocality: 'Buffalo',
-          addressRegion: 'NY',
-          addressCountry: 'US',
+    itemListElement: properties.map((space, index) => {
+      const featuredImage = space.gallery?.find(img => img.isFeatured) || space.gallery?.[0];
+      const imageUrl = featuredImage?.asset || getAbsoluteUrl(SITE_IMAGE);
+      return {
+        '@type': 'ListItem',
+        position: index + 1,
+        item: {
+          '@type': 'Accommodation',
+          name: space.title,
+          description: space.summaryText || '',
+          image: imageUrl,
+          address: {
+            '@type': 'PostalAddress',
+            addressLocality: 'Buffalo',
+            addressRegion: 'NY',
+            addressCountry: 'US',
+          },
+          amenityFeature: (space.tags || []).map((tag) => ({
+            '@type': 'LocationFeatureSpecification',
+            name: tag,
+            value: true,
+          })),
         },
-        amenityFeature: (space.tags || []).map((tag) => ({
-          '@type': 'LocationFeatureSpecification',
-          name: tag,
-          value: true,
-        })),
-      },
-    })),
+      };
+    }),
   };
 
   return (
@@ -121,70 +130,7 @@ export default async function SpacesPage() {
       <section className="py-12 px-6 lg:px-10 bg-white shadow-sm border-t border-brand-border flex-1 rounded-t-[3rem]">
         <div className="max-w-7xl mx-auto">
           <h2 className="font-serif sr-only">Available Extended Stay Rentals in Buffalo, NY</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {properties.length === 0 ? (
-              <div className="col-span-full py-20 text-center">
-                <p className="text-lg text-brand-text-main/60 font-serif">
-                  No accommodations available at this time.
-                </p>
-              </div>
-            ) : (
-              properties.map((space) => {
-                const imageUrl = space.gallery?.[0]
-                  ? urlFor(space.gallery[0]).width(600).height(400).url()
-                  : null;
-
-                return (
-                  <div key={space._id} className="bg-brand-bg-surface p-5 rounded-3xl shadow-lg border border-brand-border flex flex-col group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out">
-                    <div className="aspect-[4/3] w-full rounded-2xl overflow-hidden relative bg-slate-200 mb-6">
-                      {imageUrl ? (
-                        <Image 
-                          src={imageUrl}
-                          alt={`${space.title} at Buffalo Stays`}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-all duration-300 ease-in-out"
-                          referrerPolicy="no-referrer"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-brand-bg-main flex items-center justify-center text-brand-text-main/40 font-serif text-lg font-semibold">
-                          No Image Available
-                        </div>
-                      )}
-                      {space.availabilityStatus && (
-                        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm text-xs font-bold text-brand-primary uppercase tracking-widest">
-                          {space.availabilityStatus}
-                        </div>
-                      )}
-                    </div>
-                    <h3 className="font-serif font-bold text-2xl mb-3 px-2">{space.title}</h3>
-                    <div className="flex flex-wrap gap-2 mb-5 px-2">
-                      {(space.tags && space.tags.length > 0
-                        ? space.tags
-                        : [
-                            ...(space.amenitiesInternetOffice || []).slice(0, 1),
-                            ...(space.amenitiesBathroom || []).slice(0, 1),
-                            ...(space.amenitiesBedroomLaundry || []).slice(0, 1)
-                          ].filter(Boolean).slice(0, 3)
-                      ).map((tag) => (
-                        <span key={tag} className="text-xs px-3 py-1.5 bg-brand-bg-main rounded-full font-bold uppercase tracking-wider text-brand-text-main/80 shadow-sm">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <p className="text-sm text-brand-text-main/70 mb-8 px-2 flex-grow line-clamp-2 min-h-[40px] leading-relaxed">
-                      {space.summaryText || 'Discover a curated selection of warm, modern spaces designed for comfort, creativity, and extended stays.'}
-                    </p>
-                    <Link
-                      href={`/spaces/${space.slug}`}
-                      className="w-full py-4 text-center text-xs tracking-[0.1em] uppercase bg-brand-primary text-brand-bg-surface hover:bg-brand-primary-hover border border-brand-primary font-medium transition-colors duration-500 ease-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-primary focus-visible:ring-offset-1 focus-visible:ring-offset-brand-bg-main"
-                    >
-                      View Details
-                    </Link>
-                  </div>
-                );
-              })
-            )}
-          </div>
+          <SpacesClientCatalog initialSpaces={properties} />
         </div>
       </section>
     </div>

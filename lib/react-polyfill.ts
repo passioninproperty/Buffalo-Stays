@@ -90,4 +90,6 @@ export const useEffectEvent = (React as any).experimental_useEffectEvent || (Rea
   }, []);
 };
 
+export const experimental_useEffectEvent = useEffectEvent;
+
 export default React;
