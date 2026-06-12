@@ -92,4 +92,13 @@ export const useEffectEvent = (React as any).experimental_useEffectEvent || (Rea
 
 export const experimental_useEffectEvent = useEffectEvent;
 
-export default React;
+const ReactPolyfill = new Proxy(React, {
+  get(target, prop) {
+    if (prop === 'useEffectEvent' || prop === 'experimental_useEffectEvent') {
+      return useEffectEvent;
+    }
+    return (target as any)[prop];
+  }
+});
+
+export default ReactPolyfill;
