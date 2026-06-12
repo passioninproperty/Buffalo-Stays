@@ -3,7 +3,16 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["picsum.photos"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn.sanity.io",
+      },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+      },
+    ],
   },
   webpack: (config, { webpack }) => {
     config.plugins.push(
