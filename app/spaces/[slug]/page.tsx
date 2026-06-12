@@ -8,11 +8,7 @@ import { urlFor } from '@/sanity/lib/image';
 import { SITE_NAME, getAbsoluteUrl } from '@/lib/site';
 import { AmenityIcon } from '@/components/AmenityIcon';
 import { CollapsibleDescription } from '@/components/CollapsibleDescription';
-
-// Google Form Pre-fill Configuration Constants
-const GOOGLE_FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSf_YOUR_FORM_ID_HERE/viewform";
-// The following entry ID corresponds to the pre-filled input parameter for the property's name/title in Google Forms
-const ENTRY_ID = "entry.123456789";
+import { InquiryForm } from '@/components/InquiryForm';
 
 interface Property {
   title: string;
@@ -121,8 +117,6 @@ export default async function SpaceDetailPage({ params }: PageProps) {
   const mainImage = featuredPhoto ? urlFor(featuredPhoto).width(800).height(600).url() : null;
 
   const featuredImageItem = galleryImages.find((img) => img.isFeatured === true) || galleryImages[0];
-
-  const prefilledUrl = `${GOOGLE_FORM_BASE_URL}?usp=pp_url&${ENTRY_ID}=${encodeURIComponent(space.title)}`;
 
   // Organize grouped list for rendering
   const amenityGroupsMap: Record<string, Array<{ name: string; isAvailable: boolean }>> = {};
@@ -422,20 +416,9 @@ export default async function SpaceDetailPage({ params }: PageProps) {
                 </div>
               </div>
 
-              {/* Call To Action */}
-              <a
-                href={prefilledUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-4 text-center text-xs tracking-[0.15em] uppercase bg-brand-primary text-brand-bg-surface hover:bg-brand-primary-hover border border-brand-primary font-bold shadow-md transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
-              >
-                Check Availability
-              </a>
-
-              {/* Value Propositions */}
-              <div className="mt-4 text-center text-xs text-brand-text-main/50 font-medium">
-                <p className="mb-1">No payment required today</p>
-                <p>Google Form inquiry is 100% free</p>
+              {/* Native Inquiry Form */}
+              <div className="mt-2">
+                <InquiryForm spaceTitle={space.title} />
               </div>
 
             </div>
