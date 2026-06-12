@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { client } from '@/sanity/lib/client';
 import { SITE_DESCRIPTION, SITE_IMAGE, SITE_NAME, getAbsoluteUrl } from '@/lib/site';
+import { urlFor } from '@/sanity/lib/image';
 import SpacesClientCatalog from '@/components/SpacesClientCatalog';
 
 interface Property {
@@ -11,7 +12,12 @@ interface Property {
   pricePerNight?: number;
   tags?: string[];
   gallery?: Array<{
-    asset?: string;
+    image?: {
+      asset?: {
+        _ref?: string;
+        _type?: string;
+      };
+    };
     isFeatured?: boolean;
     photoTag?: string;
   }>;
@@ -63,7 +69,7 @@ export default async function SpacesPage() {
     location,
     pricePerNight,
     tags,
-    gallery[]{ "asset": image.asset->url, isFeatured, photoTag },
+    gallery[]{ image, isFeatured, photoTag },
     availabilityStatus,
     summaryText,
     specs,
@@ -87,8 +93,10 @@ export default async function SpacesPage() {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     itemListElement: properties.map((space, index) => {
-      const featuredImage = space.gallery?.find(img => img.isFeatured) || space.gallery?.[0];
-      const imageUrl = featuredImage?.asset || getAbsoluteUrl(SITE_IMAGE);
+      const featuredPhoto = space.gallery?.find(img => img.isFeatured === true)?.image || space.gallery?.[0]?.image;
+      const imageUrl = featuredPhoto
+        ? urlFor(featuredPhoto).width(600).height(400).url()
+        : getAbsoluteUrl(SITE_IMAGE);
       return {
         '@type': 'ListItem',
         position: index + 1,
@@ -116,8 +124,8 @@ export default async function SpacesPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(spacesSchema) }} />
-      <section className="py-20 px-6 lg:px-10 bg-brand-bg-main">
-        <div className="max-w-7xl mx-auto flex flex-col items-center text-center gap-6">
+      <section className="pt-12 pb-6 px-6 lg:px-10 bg-brand-bg-main">
+        <div className="max-w-7xl mx-auto flex flex-col items-center text-center gap-3">
           <h1 className="font-serif text-4xl lg:text-6xl font-bold text-brand-text-main leading-tight">
             Our Curated Spaces
           </h1>

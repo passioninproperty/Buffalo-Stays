@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Search, MapPin, Users, BedDouble, Bath, XCircle } from 'lucide-react';
+import { urlFor } from '@/sanity/lib/image';
 
 interface Property {
   _id: string;
@@ -13,7 +14,12 @@ interface Property {
   pricePerNight?: number;
   tags?: string[];
   gallery?: Array<{
-    asset?: string;
+    image?: {
+      asset?: {
+        _ref?: string;
+        _type?: string;
+      };
+    };
     isFeatured?: boolean;
     photoTag?: string;
   }>;
@@ -154,8 +160,10 @@ export default function SpacesClientCatalog({ initialSpaces }: SpacesClientCatal
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredSpaces.map((space) => {
-            const featuredImage = space.gallery?.find((img) => img.isFeatured) || space.gallery?.[0];
-            const imageUrl = featuredImage?.asset || null;
+            const featuredPhoto = space.gallery?.find((img) => img.isFeatured === true)?.image || space.gallery?.[0]?.image;
+            const imageUrl = featuredPhoto
+              ? urlFor(featuredPhoto).width(600).height(400).url()
+              : null;
 
             return (
               <div

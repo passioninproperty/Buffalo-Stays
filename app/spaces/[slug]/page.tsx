@@ -4,14 +4,11 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { MapPin, Users, BedDouble, Bed, Bath, ArrowLeft, Calendar, ShieldCheck, Clock } from 'lucide-react';
 import { client } from '@/sanity/lib/client';
+import { urlFor } from '@/sanity/lib/image';
 import { SITE_NAME, getAbsoluteUrl } from '@/lib/site';
 import { AmenityIcon } from '@/components/AmenityIcon';
 import { CollapsibleDescription } from '@/components/CollapsibleDescription';
-
-// Google Form Pre-fill Configuration Constants
-const GOOGLE_FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSf_YOUR_FORM_ID_HERE/viewform";
-// The following entry ID corresponds to the pre-filled input parameter for the property's name/title in Google Forms
-const ENTRY_ID = "entry.123456789";
+import { InquiryForm } from '@/components/InquiryForm';
 
 interface Property {
   title: string;
@@ -20,7 +17,12 @@ interface Property {
   minimumStay?: number;
   availabilityStatus?: string;
   gallery?: Array<{
-    asset?: string;
+    image?: {
+      asset?: {
+        _ref?: string;
+        _type?: string;
+      };
+    };
     isFeatured?: boolean;
     photoTag?: string;
   }>;
@@ -93,7 +95,7 @@ export default async function SpaceDetailPage({ params }: PageProps) {
     pricePerNight,
     minimumStay,
     availabilityStatus,
-    gallery[]{ "asset": image.asset->url, isFeatured, photoTag },
+    gallery[]{ image, isFeatured, photoTag },
     tags,
     specs,
     detailedDescription,
@@ -111,10 +113,10 @@ export default async function SpaceDetailPage({ params }: PageProps) {
   }
 
   const galleryImages = space.gallery || [];
-  const featuredImage = galleryImages.find(img => img.isFeatured) || galleryImages[0];
-  const mainImage = featuredImage?.asset || null;
+  const featuredPhoto = galleryImages.find((img) => img.isFeatured === true)?.image || galleryImages[0]?.image;
+  const mainImage = featuredPhoto ? urlFor(featuredPhoto).width(800).height(600).url() : null;
 
-  const prefilledUrl = `${GOOGLE_FORM_BASE_URL}?usp=pp_url&${ENTRY_ID}=${encodeURIComponent(space.title)}`;
+  const featuredImageItem = galleryImages.find((img) => img.isFeatured === true) || galleryImages[0];
 
   // Organize grouped list for rendering
   const amenityGroupsMap: Record<string, Array<{ name: string; isAvailable: boolean }>> = {};
@@ -136,7 +138,7 @@ export default async function SpaceDetailPage({ params }: PageProps) {
   }));
 
   // Filtering out the main/featured image from other mosaic images to avoid duplicate rendering
-  const otherImages = galleryImages.filter(img => img !== featuredImage);
+  const otherImages = galleryImages.filter(img => img !== featuredImageItem);
 
   return (
     <div className="bg-brand-bg-main min-h-screen pb-16">
@@ -219,9 +221,9 @@ export default async function SpaceDetailPage({ params }: PageProps) {
                       Image Loading
                     </div>
                   )}
-                  {featuredImage?.photoTag && (
+                  {featuredImageItem?.photoTag && (
                     <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-3 py-1.5 text-xs font-bold text-white uppercase tracking-widest rounded-md z-10">
-                      {featuredImage.photoTag}
+                      {featuredImageItem.photoTag}
                     </div>
                   )}
                 </div>
@@ -229,8 +231,9 @@ export default async function SpaceDetailPage({ params }: PageProps) {
                 {/* Auxiliary Mosaic Stack */}
                 <div className="col-span-2 grid grid-cols-2 gap-4 h-full">
                   {otherImages.slice(0, 4).map((img, idx) => {
-                    const src = img.asset;
-                    if (!src) return null;
+                    const photo = img.image;
+                    if (!photo) return null;
+                    const src = urlFor(photo).width(400).height(300).url();
                     return (
                       <div key={idx} className="relative h-full w-full overflow-hidden bg-slate-200 group">
                         <Image
@@ -260,8 +263,9 @@ export default async function SpaceDetailPage({ params }: PageProps) {
               {/* Mobile Carousel Swipeable Layout */}
               <div className="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none h-[300px] rounded-3xl">
                 {galleryImages.map((img, idx) => {
-                  const src = img.asset;
-                  if (!src) return null;
+                  const photo = img.image;
+                  if (!photo) return null;
+                  const src = urlFor(photo).width(600).height(450).url();
                   return (
                     <div key={idx} className="snap-start shrink-0 w-full h-full relative">
                       <Image
@@ -412,20 +416,9 @@ export default async function SpaceDetailPage({ params }: PageProps) {
                 </div>
               </div>
 
-              {/* Call To Action */}
-              <a
-                href={prefilledUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-4 text-center text-xs tracking-[0.15em] uppercase bg-brand-primary text-brand-bg-surface hover:bg-brand-primary-hover border border-brand-primary font-bold shadow-md transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
-              >
-                Check Availability
-              </a>
-
-              {/* Value Propositions */}
-              <div className="mt-4 text-center text-xs text-brand-text-main/50 font-medium">
-                <p className="mb-1">No payment required today</p>
-                <p>Google Form inquiry is 100% free</p>
+              {/* Native Inquiry Form */}
+              <div className="mt-2">
+                <InquiryForm spaceTitle={space.title} />
               </div>
 
             </div>
