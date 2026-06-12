@@ -18,6 +18,14 @@ interface Property {
   pricePerNight?: number;
   tags?: string[];
   gallery?: Array<{
+    image?: {
+      asset?: {
+        _ref?: string;
+        _type?: string;
+      };
+    };
+    isFeatured?: boolean;
+    photoTag?: string;
     asset?: {
       _ref?: string;
     };
@@ -214,9 +222,12 @@ function FAQSection() {
 function HeroSection({ featuredProperty }: { featuredProperty: Property | null }) {
   const title = featuredProperty?.title || 'The Rust Studio';
   const slug = featuredProperty?.slug || 'the-rust-studio';
-  const image = featuredProperty?.gallery?.[0]
-    ? urlFor(featuredProperty.gallery[0]).width(800).height(600).url()
-    : 'https://picsum.photos/seed/buffalo-hero-longstay/800/600';
+  const rawPhoto = featuredProperty?.gallery?.[0];
+  const photo = rawPhoto?.image || rawPhoto;
+  const photoObj = photo as { asset?: { _ref?: string }; _ref?: string };
+  const image = photoObj && (photoObj.asset || photoObj._ref)
+    ? urlFor(photoObj).width(800).height(600).url()
+    : null;
   const location = featuredProperty?.location || 'Buffalo, NY';
 
   return (
@@ -247,14 +258,25 @@ function HeroSection({ featuredProperty }: { featuredProperty: Property | null }
         </div>
       </div>
       <div className="w-full lg:w-1/2 h-[450px] bg-brand-bg-main rounded-[2.5rem] shadow-2xl border-4 border-brand-bg-surface overflow-hidden relative">
-        <Image 
-          src={image}
-          alt={`Sunlit Buffalo Stays living space featuring ${title} in ${location}`}
-          fill
-          className="object-cover object-center"
-          referrerPolicy="no-referrer"
-          priority
-        />
+        {image ? (
+          <Image 
+            src={image}
+            alt={`Sunlit Buffalo Stays living space featuring ${title} in ${location}`}
+            fill
+            className="object-cover object-center"
+            referrerPolicy="no-referrer"
+            priority
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-bg-surface via-brand-bg-main to-brand-bg-surface flex flex-col items-center justify-center text-center p-8 select-none">
+            <span className="font-serif text-sm font-bold tracking-widest text-brand-primary/40 uppercase mb-3 animate-pulse">
+              Buffalo Stays
+            </span>
+            <span className="font-serif text-2xl font-bold text-brand-text-main/60 px-6">
+              {title}
+            </span>
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-brand-text-main/60 via-transparent to-transparent" />
         <div className="absolute bottom-6 left-6 right-6 p-5 bg-brand-bg-surface/95 backdrop-blur-md rounded-2xl flex justify-between items-center shadow-lg border border-brand-bg-surface/50">
           <div>
@@ -449,9 +471,12 @@ function SpacesPreview({ properties }: { properties: Property[] }) {
             </div>
           ) : (
             displaySpaces.map((space) => {
-              const image = space.gallery?.[0]
-                ? urlFor(space.gallery[0]).width(600).height(400).url()
-                : "https://picsum.photos/seed/buffalo-space1/800/600";
+              const rawPhoto = space.gallery?.[0];
+              const photo = rawPhoto?.image || rawPhoto;
+              const photoObj = photo as { asset?: { _ref?: string }; _ref?: string };
+              const image = photoObj && (photoObj.asset || photoObj._ref)
+                ? urlFor(photoObj).width(600).height(400).url()
+                : null;
               
               // Resolve tags or collect them dynamically from selected amenities
               const tags = space.tags && space.tags.length > 0 
@@ -465,13 +490,24 @@ function SpacesPreview({ properties }: { properties: Property[] }) {
               return (
                 <div key={space._id} className="bg-brand-bg-surface p-5 rounded-3xl shadow-lg border border-black/5 flex flex-col group hover:-translate-y-1 hover:shadow-xl transition-all duration-300 ease-in-out">
                   <div className="relative w-full h-56 bg-slate-200 rounded-2xl mb-6 overflow-hidden">
-                    <Image 
-                      src={image}
-                      alt={`${space.title} at Buffalo Stays`}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-all duration-300 ease-in-out"
-                      referrerPolicy="no-referrer"
-                    />
+                    {image ? (
+                      <Image 
+                        src={image}
+                        alt={`${space.title} at Buffalo Stays`}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-all duration-300 ease-in-out"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-brand-bg-surface via-brand-bg-main to-brand-bg-surface flex flex-col items-center justify-center text-center p-6 select-none border border-brand-border">
+                        <div className="font-serif text-xs font-bold tracking-widest text-brand-primary/40 uppercase mb-2">
+                          Buffalo Stays
+                        </div>
+                        <div className="font-serif text-lg font-bold text-brand-text-main/60 line-clamp-2 px-4 font-medium">
+                          {space.title}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <h3 className="font-serif font-bold text-xl mb-3 px-2">{space.title}</h3>
                   <div className="flex flex-wrap gap-2 mb-5 px-2">
