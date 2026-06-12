@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { MapPin, Users, BedDouble, Bed, Bath, ArrowLeft, Calendar, ShieldCheck, Clock } from 'lucide-react';
 import { client } from '@/sanity/lib/client';
-import { urlFor } from '@/sanity/lib/image';
 import { SITE_NAME, getAbsoluteUrl } from '@/lib/site';
 import { AmenityIcon } from '@/components/AmenityIcon';
+import { CollapsibleDescription } from '@/components/CollapsibleDescription';
 
 // Google Form Pre-fill Configuration Constants
 const GOOGLE_FORM_BASE_URL = "https://docs.google.com/forms/d/e/1FAIpQLSf_YOUR_FORM_ID_HERE/viewform";
@@ -20,8 +20,9 @@ interface Property {
   minimumStay?: number;
   availabilityStatus?: string;
   gallery?: Array<{
-    asset?: { _ref?: string };
-    label?: string;
+    asset?: string;
+    isFeatured?: boolean;
+    photoTag?: string;
   }>;
   tags?: string[];
   specs?: {
@@ -32,20 +33,11 @@ interface Property {
   };
   detailedDescription?: string;
   summaryText?: string;
-  // Grouped amenities
-  amenitiesBathroom?: string[];
-  amenitiesBedroomLaundry?: string[];
-  amenitiesEntertainment?: string[];
-  amenitiesFamily?: string[];
-  amenitiesHeatingCooling?: string[];
-  amenitiesSafety?: string[];
-  amenitiesInternetOffice?: string[];
-  amenitiesKitchenDining?: string[];
-  amenitiesLocation?: string[];
-  amenitiesOutdoor?: string[];
-  amenitiesParking?: string[];
-  amenitiesServices?: string[];
-  amenitiesUnavailable?: string[];
+  amenityStatuses?: Array<{
+    isAvailable: boolean;
+    name: string;
+    categoryName: string;
+  }>;
 }
 
 interface PageProps {
@@ -101,23 +93,11 @@ export default async function SpaceDetailPage({ params }: PageProps) {
     pricePerNight,
     minimumStay,
     availabilityStatus,
-    gallery,
+    gallery[]{ "asset": image.asset->url, isFeatured, photoTag },
     tags,
     specs,
     detailedDescription,
-    amenitiesBathroom,
-    amenitiesBedroomLaundry,
-    amenitiesEntertainment,
-    amenitiesFamily,
-    amenitiesHeatingCooling,
-    amenitiesSafety,
-    amenitiesInternetOffice,
-    amenitiesKitchenDining,
-    amenitiesLocation,
-    amenitiesOutdoor,
-    amenitiesParking,
-    amenitiesServices,
-    amenitiesUnavailable
+    amenityStatuses[]{ isAvailable, "name": amenityRef->title, "categoryName": amenityRef->category->title }
   }`;
 
   const space = await client.fetch<Property | null>(
@@ -131,25 +111,32 @@ export default async function SpaceDetailPage({ params }: PageProps) {
   }
 
   const galleryImages = space.gallery || [];
-  const mainImage = galleryImages[0] ? urlFor(galleryImages[0]).width(800).height(600).url() : null;
+  const featuredImage = galleryImages.find(img => img.isFeatured) || galleryImages[0];
+  const mainImage = featuredImage?.asset || null;
 
   const prefilledUrl = `${GOOGLE_FORM_BASE_URL}?usp=pp_url&${ENTRY_ID}=${encodeURIComponent(space.title)}`;
 
   // Organize grouped list for rendering
-  const amenityGroups = [
-    { title: 'Bathroom', list: space.amenitiesBathroom },
-    { title: 'Bedroom and laundry', list: space.amenitiesBedroomLaundry },
-    { title: 'Entertainment', list: space.amenitiesEntertainment },
-    { title: 'Family', list: space.amenitiesFamily },
-    { title: 'Heating and cooling', list: space.amenitiesHeatingCooling },
-    { title: 'Home safety', list: space.amenitiesSafety },
-    { title: 'Internet and office', list: space.amenitiesInternetOffice },
-    { title: 'Kitchen and dining', list: space.amenitiesKitchenDining },
-    { title: 'Location features', list: space.amenitiesLocation },
-    { title: 'Outdoor', list: space.amenitiesOutdoor },
-    { title: 'Parking and facilities', list: space.amenitiesParking },
-    { title: 'Services', list: space.amenitiesServices },
-  ].filter(group => group.list && group.list.length > 0);
+  const amenityGroupsMap: Record<string, Array<{ name: string; isAvailable: boolean }>> = {};
+  space.amenityStatuses?.forEach((status) => {
+    if (status.name && status.categoryName) {
+      if (!amenityGroupsMap[status.categoryName]) {
+        amenityGroupsMap[status.categoryName] = [];
+      }
+      amenityGroupsMap[status.categoryName].push({
+        name: status.name,
+        isAvailable: status.isAvailable !== false,
+      });
+    }
+  });
+
+  const amenityGroups = Object.entries(amenityGroupsMap).map(([title, list]) => ({
+    title,
+    list,
+  }));
+
+  // Filtering out the main/featured image from other mosaic images to avoid duplicate rendering
+  const otherImages = galleryImages.filter(img => img !== featuredImage);
 
   return (
     <div className="bg-brand-bg-main min-h-screen pb-16">
@@ -232,17 +219,18 @@ export default async function SpaceDetailPage({ params }: PageProps) {
                       Image Loading
                     </div>
                   )}
-                  {galleryImages[0]?.label && (
+                  {featuredImage?.photoTag && (
                     <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-3 py-1.5 text-xs font-bold text-white uppercase tracking-widest rounded-md z-10">
-                      {galleryImages[0].label}
+                      {featuredImage.photoTag}
                     </div>
                   )}
                 </div>
 
                 {/* Auxiliary Mosaic Stack */}
                 <div className="col-span-2 grid grid-cols-2 gap-4 h-full">
-                  {galleryImages.slice(1, 5).map((img, idx) => {
-                    const src = urlFor(img).width(400).height(300).url();
+                  {otherImages.slice(0, 4).map((img, idx) => {
+                    const src = img.asset;
+                    if (!src) return null;
                     return (
                       <div key={idx} className="relative h-full w-full overflow-hidden bg-slate-200 group">
                         <Image
@@ -252,16 +240,16 @@ export default async function SpaceDetailPage({ params }: PageProps) {
                           className="object-cover group-hover:scale-105 transition-transform duration-500"
                           sizes="(max-width: 768px) 50vw, 25vw"
                         />
-                        {img.label && (
+                        {img.photoTag && (
                           <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm px-2 py-1 text-[10px] font-bold text-white uppercase tracking-wider rounded z-10">
-                            {img.label}
+                            {img.photoTag}
                           </div>
                         )}
                       </div>
                     );
                   })}
                   {/* Fallback items if gallery has fewer than 5 images */}
-                  {Array.from({ length: Math.max(0, 4 - galleryImages.slice(1, 5).length) }).map((_, idx) => (
+                  {Array.from({ length: Math.max(0, 4 - otherImages.slice(0, 4).length) }).map((_, idx) => (
                     <div key={`pad-${idx}`} className="bg-brand-bg-surface/50 border border-brand-border flex items-center justify-center rounded-none text-brand-text-main/10 font-serif font-bold tracking-widest text-sm uppercase">
                       Buffalo Stays
                     </div>
@@ -272,7 +260,8 @@ export default async function SpaceDetailPage({ params }: PageProps) {
               {/* Mobile Carousel Swipeable Layout */}
               <div className="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none h-[300px] rounded-3xl">
                 {galleryImages.map((img, idx) => {
-                  const src = urlFor(img).width(600).height(450).url();
+                  const src = img.asset;
+                  if (!src) return null;
                   return (
                     <div key={idx} className="snap-start shrink-0 w-full h-full relative">
                       <Image
@@ -282,9 +271,9 @@ export default async function SpaceDetailPage({ params }: PageProps) {
                         className="object-cover"
                         sizes="100vw"
                       />
-                      {img.label && (
+                      {img.photoTag && (
                         <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-3 py-1.5 text-xs font-bold text-white uppercase tracking-widest rounded-md z-10">
-                          {img.label}
+                          {img.photoTag}
                         </div>
                       )}
                     </div>
@@ -340,9 +329,7 @@ export default async function SpaceDetailPage({ params }: PageProps) {
               <h2 className="font-serif text-2xl font-bold mb-4 text-brand-text-main">
                 About this space
               </h2>
-              <div className="text-brand-text-main/80 leading-relaxed space-y-4 whitespace-pre-line text-base">
-                {space.detailedDescription || 'No description is currently available for this workspace/extended stay. Contact us for direct inquiries.'}
-              </div>
+              <CollapsibleDescription description={space.detailedDescription || ''} />
             </div>
 
             {/* Grouped Amenities Grid */}
@@ -358,36 +345,32 @@ export default async function SpaceDetailPage({ params }: PageProps) {
                         {group.title}
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {group.list!.map((amenity) => (
-                          <div key={amenity} className="flex items-center gap-3 text-brand-text-main/80">
-                            <div className="w-8 h-8 rounded-full bg-brand-primary/5 flex items-center justify-center text-brand-primary shrink-0">
-                              <AmenityIcon name={amenity} className="w-4 h-4 text-brand-primary" />
+                        {group.list.map((amenity) => {
+                          const isAvailable = amenity.isAvailable;
+                          return (
+                            <div
+                              key={amenity.name}
+                              className={`flex items-center gap-3 ${
+                                isAvailable ? 'text-brand-text-main/80' : 'text-brand-text-main/40 line-through'
+                              }`}
+                            >
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                                isAvailable ? 'bg-brand-primary/5 text-brand-primary' : 'bg-brand-text-main/5 text-brand-text-main/30'
+                              }`}>
+                                <AmenityIcon
+                                  name={amenity.name}
+                                  className={`w-4 h-4 ${
+                                    isAvailable ? 'text-brand-primary' : 'text-brand-text-main/30'
+                                  }`}
+                                />
+                              </div>
+                              <span className="text-sm font-semibold">{amenity.name}</span>
                             </div>
-                            <span className="text-sm font-semibold">{amenity}</span>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   ))}
-
-                  {/* Unavailable / Not included list */}
-                  {space.amenitiesUnavailable && space.amenitiesUnavailable.length > 0 && (
-                    <div className="pt-2">
-                      <h3 className="font-serif text-sm font-bold text-brand-text-main/40 mb-4 uppercase tracking-widest">
-                        Not included
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {space.amenitiesUnavailable.map((amenity) => (
-                          <div key={amenity} className="flex items-center gap-3 text-brand-text-main/40 line-through">
-                            <div className="w-8 h-8 rounded-full bg-brand-text-main/5 flex items-center justify-center text-brand-text-main/30 shrink-0">
-                              <AmenityIcon name={amenity} className="w-4 h-4 text-brand-text-main/30" />
-                            </div>
-                            <span className="text-sm font-medium">Unavailable: {amenity}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             )}
