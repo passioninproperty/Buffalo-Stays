@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { MapPin, Users, BedDouble, Bed, Bath, ArrowLeft, Calendar, ShieldCheck, Clock } from 'lucide-react';
 import { client } from '@/sanity/lib/client';
+import { urlFor } from '@/sanity/lib/image';
 import { SITE_NAME, getAbsoluteUrl } from '@/lib/site';
 import { AmenityIcon } from '@/components/AmenityIcon';
 import { CollapsibleDescription } from '@/components/CollapsibleDescription';
@@ -20,7 +21,12 @@ interface Property {
   minimumStay?: number;
   availabilityStatus?: string;
   gallery?: Array<{
-    asset?: string;
+    image?: {
+      asset?: {
+        _ref?: string;
+        _type?: string;
+      };
+    };
     isFeatured?: boolean;
     photoTag?: string;
   }>;
@@ -93,7 +99,7 @@ export default async function SpaceDetailPage({ params }: PageProps) {
     pricePerNight,
     minimumStay,
     availabilityStatus,
-    gallery[]{ "asset": image.asset->url, isFeatured, photoTag },
+    gallery[]{ image, isFeatured, photoTag },
     tags,
     specs,
     detailedDescription,
@@ -111,8 +117,10 @@ export default async function SpaceDetailPage({ params }: PageProps) {
   }
 
   const galleryImages = space.gallery || [];
-  const featuredImage = galleryImages.find(img => img.isFeatured) || galleryImages[0];
-  const mainImage = featuredImage?.asset || null;
+  const featuredPhoto = galleryImages.find((img) => img.isFeatured === true)?.image || galleryImages[0]?.image;
+  const mainImage = featuredPhoto ? urlFor(featuredPhoto).width(800).height(600).url() : null;
+
+  const featuredImageItem = galleryImages.find((img) => img.isFeatured === true) || galleryImages[0];
 
   const prefilledUrl = `${GOOGLE_FORM_BASE_URL}?usp=pp_url&${ENTRY_ID}=${encodeURIComponent(space.title)}`;
 
@@ -136,7 +144,7 @@ export default async function SpaceDetailPage({ params }: PageProps) {
   }));
 
   // Filtering out the main/featured image from other mosaic images to avoid duplicate rendering
-  const otherImages = galleryImages.filter(img => img !== featuredImage);
+  const otherImages = galleryImages.filter(img => img !== featuredImageItem);
 
   return (
     <div className="bg-brand-bg-main min-h-screen pb-16">
@@ -219,9 +227,9 @@ export default async function SpaceDetailPage({ params }: PageProps) {
                       Image Loading
                     </div>
                   )}
-                  {featuredImage?.photoTag && (
+                  {featuredImageItem?.photoTag && (
                     <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-3 py-1.5 text-xs font-bold text-white uppercase tracking-widest rounded-md z-10">
-                      {featuredImage.photoTag}
+                      {featuredImageItem.photoTag}
                     </div>
                   )}
                 </div>
@@ -229,8 +237,9 @@ export default async function SpaceDetailPage({ params }: PageProps) {
                 {/* Auxiliary Mosaic Stack */}
                 <div className="col-span-2 grid grid-cols-2 gap-4 h-full">
                   {otherImages.slice(0, 4).map((img, idx) => {
-                    const src = img.asset;
-                    if (!src) return null;
+                    const photo = img.image;
+                    if (!photo) return null;
+                    const src = urlFor(photo).width(400).height(300).url();
                     return (
                       <div key={idx} className="relative h-full w-full overflow-hidden bg-slate-200 group">
                         <Image
@@ -260,8 +269,9 @@ export default async function SpaceDetailPage({ params }: PageProps) {
               {/* Mobile Carousel Swipeable Layout */}
               <div className="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none h-[300px] rounded-3xl">
                 {galleryImages.map((img, idx) => {
-                  const src = img.asset;
-                  if (!src) return null;
+                  const photo = img.image;
+                  if (!photo) return null;
+                  const src = urlFor(photo).width(600).height(450).url();
                   return (
                     <div key={idx} className="snap-start shrink-0 w-full h-full relative">
                       <Image
