@@ -1,65 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import {
-  MapPin, Users, BedDouble, Bed, Bath, ArrowLeft, Calendar, ShieldCheck, Clock,
-  Wifi, Tv, Snowflake, Wind, Utensils, Coffee, Shield, HelpCircle,
-  Flame, Sparkles, WashingMachine, Shirt, Gamepad2, Baby, Dice5, Fan, Volume2,
-  Bell, AlertTriangle, ShieldAlert, PlusSquare, Briefcase, Refrigerator,
-  Microwave, ChefHat, GlassWater, Key, DoorOpen, Trees, Compass, Car, Dog,
-  CalendarDays, KeyRound, EyeOff, Thermometer
-} from 'lucide-react';
+import { MapPin, Users, BedDouble, Bed, Bath, ArrowLeft, Calendar, ShieldCheck, Clock } from 'lucide-react';
 import { client } from '@/sanity/lib/client';
 import { SITE_NAME, getAbsoluteUrl } from '@/lib/site';
 import { CollapsibleDescription } from '@/components/CollapsibleDescription';
 import { InquiryForm } from '@/components/InquiryForm';
 import { GalleryGrid } from '@/components/GalleryGrid';
-
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  wifi: Wifi,
-  tv: Tv,
-  snowflake: Snowflake,
-  wind: Wind,
-  utensils: Utensils,
-  coffee: Coffee,
-  shield: Shield,
-  flame: Flame,
-  sparkles: Sparkles,
-  washingmachine: WashingMachine,
-  shirt: Shirt,
-  bed: Bed,
-  bath: Bath,
-  gamepad: Gamepad2,
-  baby: Baby,
-  dice: Dice5,
-  fan: Fan,
-  volume: Volume2,
-  bell: Bell,
-  alert: AlertTriangle,
-  shieldalert: ShieldAlert,
-  plus: PlusSquare,
-  briefcase: Briefcase,
-  refrigerator: Refrigerator,
-  microwave: Microwave,
-  chefhat: ChefHat,
-  glasswater: GlassWater,
-  key: Key,
-  dooropen: DoorOpen,
-  trees: Trees,
-  compass: Compass,
-  car: Car,
-  dog: Dog,
-  calendardays: CalendarDays,
-  keyround: KeyRound,
-  eyeoff: EyeOff,
-  thermometer: Thermometer
-};
-
-const getAmenityIcon = (slug?: string) => {
-  if (!slug) return HelpCircle;
-  const cleanSlug = slug.toLowerCase().trim();
-  return ICON_MAP[cleanSlug] || HelpCircle;
-};
+import { AmenitiesSection } from '@/components/AmenitiesSection';
+import { LocationMap } from '@/components/LocationMap';
 
 interface Property {
   title: string;
@@ -86,6 +35,10 @@ interface Property {
   };
   detailedDescription?: string;
   summaryText?: string;
+  locationCoordinates?: {
+    lat: number;
+    lng: number;
+  };
   amenities?: Array<{
     isAvailable: boolean;
     amenity?: {
@@ -155,6 +108,7 @@ export default async function SpaceDetailPage({ params }: PageProps) {
     tags,
     specs,
     detailedDescription,
+    locationCoordinates,
     amenities[]{
       isAvailable,
       amenity->{
@@ -176,29 +130,6 @@ export default async function SpaceDetailPage({ params }: PageProps) {
   if (!space) {
     notFound();
   }
-
-  // Organize grouped list for rendering
-  const groupedAmenitiesMap = (space.amenities || []).reduce<
-    Record<string, Array<{ title: string; iconSlug: string; isAvailable: boolean }>>
-  >((acc, item) => {
-    if (item.amenity && item.amenity.category?.title) {
-      const categoryTitle = item.amenity.category.title;
-      if (!acc[categoryTitle]) {
-        acc[categoryTitle] = [];
-      }
-      acc[categoryTitle].push({
-        title: item.amenity.title,
-        iconSlug: item.amenity.iconSlug,
-        isAvailable: item.isAvailable !== false,
-      });
-    }
-    return acc;
-  }, {});
-
-  const amenityGroups = Object.entries(groupedAmenitiesMap).map(([title, list]) => ({
-    title,
-    list,
-  }));
 
   return (
     <div className="bg-brand-bg-main min-h-screen pb-16">
@@ -305,52 +236,11 @@ export default async function SpaceDetailPage({ params }: PageProps) {
               <CollapsibleDescription description={space.detailedDescription || ''} />
             </div>
 
-            {/* Grouped Amenities Grid */}
-            {amenityGroups.length > 0 && (
-              <div className="py-8 border-b border-brand-border">
-                <h2 className="font-serif text-2xl font-bold mb-8 text-brand-text-main">
-                  What this space offers
-                </h2>
-                <div className="space-y-8">
-                  {amenityGroups.map((group) => (
-                    <div key={group.title} className="border-b border-brand-border pb-6 last:border-b-0 last:pb-0">
-                      <h3 className="font-serif text-sm font-bold text-brand-text-main/50 mb-4 uppercase tracking-widest">
-                        {group.title}
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {group.list.map((amenity) => {
-                          const isAvailable = amenity.isAvailable;
-                          const IconComponent = getAmenityIcon(amenity.iconSlug);
-                          return (
-                            <div
-                              key={amenity.title}
-                              className={`flex items-center gap-3 ${
-                                isAvailable
-                                  ? 'text-brand-text-main'
-                                  : 'line-through text-neutral-400 opacity-60'
-                              }`}
-                            >
-                              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                                isAvailable ? 'bg-brand-primary/5 text-brand-primary' : 'bg-brand-text-main/5 text-brand-text-main/30'
-                              }`}>
-                                <IconComponent
-                                  className={`w-4 h-4 ${
-                                    isAvailable ? 'text-brand-primary' : 'text-brand-text-main/30'
-                                  }`}
-                                />
-                              </div>
-                              <span className="text-sm font-semibold">
-                                {isAvailable ? '' : 'Unavailable: '}{amenity.title}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Curated Amenities Grid & Modal Portal */}
+            <AmenitiesSection amenities={space.amenities || []} />
+
+            {/* Privacy-First Location Map Module */}
+            <LocationMap locationCoordinates={space.locationCoordinates} />
 
           </div>
 
