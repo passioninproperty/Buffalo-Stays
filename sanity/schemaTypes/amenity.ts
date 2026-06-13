@@ -18,5 +18,11 @@ export const amenityType = defineType({
       to: [{ type: 'amenityCategory' }],
       validation: (Rule: ReferenceRule) => Rule.required(),
     }),
+    defineField({
+      name: 'iconSlug',
+      title: 'Icon Slug',
+      type: 'string',
+      validation: (Rule: StringRule) => Rule.required(),
+    }),
   ],
 })

@@ -41,8 +41,13 @@ function doPost(e) {
     var clientName = data.clientName || "";
     var clientEmail = data.clientEmail || "";
     var clientPhone = data.clientPhone || "";
-    var targetStartDate = data.targetStartDate || "";
-    var stayDuration = data.stayDuration || "";
+    var checkInDate = data.checkInDate || "";
+    var checkOutDate = data.checkOutDate || "";
+    var totalNightsDuration = data.totalNightsDuration || "";
+    var countAdults = data.countAdults || 0;
+    var countChildren = data.countChildren || 0;
+    var countInfants = data.countInfants || 0;
+    var hasPetsIncluded = data.hasPetsIncluded || false;
     
     // Open the active spreadsheet and get the active sheet
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
@@ -55,8 +60,11 @@ function doPost(e) {
         "Client Name",
         "Client Email",
         "Client Phone",
-        "Target Start Date",
-        "Stay Duration"
+        "Check-In Date",
+        "Check-Out Date",
+        "Total Nights Duration",
+        "Travelers",
+        "Pets Included"
       ]);
     }
     
@@ -70,8 +78,11 @@ function doPost(e) {
       clientName,
       clientEmail,
       clientPhone,
-      targetStartDate,
-      stayDuration
+      checkInDate,
+      checkOutDate,
+      totalNightsDuration,
+      countAdults + " Adults, " + countChildren + " Children, " + countInfants + " Infants",
+      hasPetsIncluded ? "Yes" : "No"
     ]);
     
     // Trigger the email notification inside a try-catch safety block
@@ -108,12 +119,31 @@ function sendEmailNotification(data) {
   var clientName = data.clientName || "N/A";
   var clientEmail = data.clientEmail || "N/A";
   var clientPhone = data.clientPhone || "N/A";
-  var targetStartDate = data.targetStartDate || "N/A";
-  var stayDuration = data.stayDuration || "N/A";
+  var checkInDate = data.checkInDate || "N/A";
+  var checkOutDate = data.checkOutDate || "N/A";
+  var totalNightsDuration = data.totalNightsDuration || "N/A";
+  var countAdults = data.countAdults || 0;
+  var countChildren = data.countChildren || 0;
+  var countInfants = data.countInfants || 0;
+  var hasPetsIncluded = data.hasPetsIncluded || false;
   
   // Construct a subject line with clear high-intent urgency
   var subject = "🚨 New Lead Action Required: Corporate Booking Request for " + spaceTitle;
   
+  // Notice-flagged block with warm tint for pets or grey fallback
+  var petStatusHtml = '';
+  if (hasPetsIncluded) {
+    petStatusHtml = 
+      '<div style="margin-top: 15px; padding: 12px 16px; background-color: #FFFBEB; border-left: 4px solid #D97706; border-top: 1px solid #FDE68A; border-right: 1px solid #FDE68A; border-bottom: 1px solid #FDE68A; border-radius: 6px; font-size: 13px; color: #92400E; font-weight: bold;">' +
+        '🐾 Notice: Pets are included in this stay. Review animal accommodations.' +
+      '</div>';
+  } else {
+    petStatusHtml =
+      '<div style="margin-top: 15px; padding: 12px 16px; background-color: #F9FAFB; border-left: 4px solid #E5E7EB; border-top: 1px solid #F3F4F6; border-right: 1px solid #F3F4F6; border-bottom: 1px solid #F3F4F6; border-radius: 6px; font-size: 13px; color: #6B7280;">' +
+        '🐾 Pets Included: None' +
+      '</div>';
+  }
+
   // Construct premium, highly responsive HTML email body using inline styles matching charcoal/beige theme
   var htmlBody = 
     '<div style="background-color: #EAE6E1; padding: 30px; font-family: \'Helvetica Neue\', Helvetica, Arial, sans-serif; color: #2B2B2A; line-height: 1.6;">' +
@@ -154,15 +184,28 @@ function sendEmailNotification(data) {
                 '</td>' +
               '</tr>' +
               '<tr>' +
-                '<td style="padding: 10px 0; font-weight: bold; color: #8C867E; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; border-bottom: 1px solid #F4F2EE;">Move-in Date</td>' +
-                '<td style="padding: 10px 0; color: #2B2B2A; font-weight: 500; border-bottom: 1px solid #F4F2EE;">' + targetStartDate + '</td>' +
+                '<td style="padding: 10px 0; font-weight: bold; color: #8C867E; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; border-bottom: 1px solid #F4F2EE;">Check-In Date</td>' +
+                '<td style="padding: 10px 0; color: #2B2B2A; font-weight: 500; border-bottom: 1px solid #F4F2EE;">' + checkInDate + '</td>' +
               '</tr>' +
               '<tr>' +
-                '<td style="padding: 10px 0; font-weight: bold; color: #8C867E; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; border-bottom: 1px solid #F4F2EE;">Stay Duration</td>' +
-                '<td style="padding: 10px 0; color: #2B2B2A; font-weight: 500; border-bottom: 1px solid #F4F2EE;">' + stayDuration + '</td>' +
+                '<td style="padding: 10px 0; font-weight: bold; color: #8C867E; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; border-bottom: 1px solid #F4F2EE;">Check-Out Date</td>' +
+                '<td style="padding: 10px 0; color: #2B2B2A; font-weight: 500; border-bottom: 1px solid #F4F2EE;">' + checkOutDate + '</td>' +
+              '</tr>' +
+              '<tr>' +
+                '<td style="padding: 10px 0; font-weight: bold; color: #8C867E; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; border-bottom: 1px solid #F4F2EE;">Total Nights</td>' +
+                '<td style="padding: 10px 0; color: #2B2B2A; font-weight: 500; border-bottom: 1px solid #F4F2EE;">' + totalNightsDuration + ' Nights</td>' +
               '</tr>' +
             '</tbody>' +
           '</table>' +
+
+          '<!-- Travelers & Pets Callout Card -->' +
+          '<div style="background-color: #F4F2EE; padding: 20px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.02); margin-bottom: 24px;">' +
+            '<p style="margin: 0 0 8px 0; font-size: 10px; color: #8C867E; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em;">Traveler & Pet Accommodations</p>' +
+            '<p style="margin: 0; font-size: 15px; color: #2B2B2A; font-weight: bold;">' +
+              countAdults + ' Adults, ' + countChildren + ' Children, ' + countInfants + ' Infants' +
+            '</p>' +
+            petStatusHtml +
+          '</div>' +
           
           '<!-- CTA Block -->' +
           '<div style="background-color: #F4F2EE; padding: 20px; border-radius: 12px; text-align: center; border: 1px solid rgba(0,0,0,0.02);">' +
