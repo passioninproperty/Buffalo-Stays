@@ -44,6 +44,13 @@ export const propertyType = defineType({
       description: 'e.g., Central London',
     }),
     defineField({
+      name: 'locationCoordinates',
+      title: 'Location Coordinates',
+      type: 'geopoint',
+      group: 'details',
+      description: 'Latitude and longitude coordinates for map visualization',
+    }),
+    defineField({
       name: 'pricePerNight',
       title: 'Price per Night (£)',
       type: 'number',
