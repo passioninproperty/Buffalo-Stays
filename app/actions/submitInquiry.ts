@@ -5,8 +5,13 @@ export interface InquiryInput {
   clientName: string;
   clientEmail: string;
   clientPhone: string;
-  targetStartDate: string;
-  stayDuration: string;
+  checkInDate: string;
+  checkOutDate: string;
+  totalNightsDuration: string;
+  countAdults: number;
+  countChildren: number;
+  countInfants: number;
+  hasPetsIncluded: boolean;
 }
 
 export interface InquiryResponse {
@@ -36,8 +41,9 @@ export async function submitInquiry(formData: InquiryInput): Promise<InquiryResp
       !formData.clientName.trim() ||
       !formData.clientEmail.trim() ||
       !formData.clientPhone.trim() ||
-      !formData.targetStartDate.trim() ||
-      !formData.stayDuration.trim()
+      !formData.checkInDate.trim() ||
+      !formData.checkOutDate.trim() ||
+      !formData.totalNightsDuration.trim()
     ) {
       return {
         success: false,
