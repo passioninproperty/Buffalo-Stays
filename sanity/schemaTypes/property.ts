@@ -157,34 +157,6 @@ export const propertyType = defineType({
 
     // --- AMENITIES GROUP ---
     defineField({
-      name: 'amenityStatuses',
-      title: 'Amenity Statuses',
-      type: 'array',
-      group: 'amenities',
-      of: [
-        {
-          type: 'object',
-          name: 'amenityStatus',
-          title: 'Amenity Status',
-          fields: [
-            defineField({
-              name: 'amenityRef',
-              type: 'reference',
-              to: [{ type: 'amenity' }],
-              validation: (Rule) => Rule.required(),
-            }),
-            defineField({
-              name: 'isAvailable',
-              type: 'boolean',
-              title: 'Amenity Available Status',
-              initialValue: true,
-              description: 'Toggle off to show this feature is currently not available or broken at this specific location',
-            }),
-          ],
-        },
-      ],
-    }),
-    defineField({
       name: 'amenities',
       title: 'Property Amenities Inventory',
       type: 'array',

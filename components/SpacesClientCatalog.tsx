@@ -31,7 +31,7 @@ interface Property {
     beds?: number;
     bathrooms?: number;
   };
-  amenityStatuses?: Array<{
+  amenities?: Array<{
     name: string;
   }>;
 }
@@ -69,7 +69,7 @@ export default function SpacesClientCatalog({ initialSpaces }: SpacesClientCatal
           tag.toLowerCase().includes('workspace') || tag.toLowerCase().includes('dedicated workspace')
         ) || false;
         
-        const hasWorkspaceAmenity = space.amenityStatuses?.some(amenity => 
+        const hasWorkspaceAmenity = space.amenities?.some(amenity => 
           amenity.name.toLowerCase().includes('workspace') || amenity.name.toLowerCase().includes('dedicated workspace')
         ) || false;
 

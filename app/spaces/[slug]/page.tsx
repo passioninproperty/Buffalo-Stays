@@ -86,11 +86,6 @@ interface Property {
   };
   detailedDescription?: string;
   summaryText?: string;
-  amenityStatuses?: Array<{
-    isAvailable: boolean;
-    name: string;
-    categoryName: string;
-  }>;
   amenities?: Array<{
     isAvailable: boolean;
     amenity?: {
