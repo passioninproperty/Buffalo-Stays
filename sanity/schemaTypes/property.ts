@@ -184,5 +184,35 @@ export const propertyType = defineType({
         },
       ],
     }),
+    defineField({
+      name: 'amenities',
+      title: 'Property Amenities Inventory',
+      type: 'array',
+      group: 'amenities',
+      of: [
+        {
+          type: 'object',
+          name: 'propertyAmenity',
+          title: 'Property Amenity Status',
+          fields: [
+            { name: 'amenity', type: 'reference', title: 'Amenity Reference', to: [{ type: 'amenity' }] },
+            { name: 'isAvailable', type: 'boolean', title: 'Is Available at this Property', initialValue: true }
+          ],
+          preview: {
+            select: {
+              title: 'amenity.title',
+              category: 'amenity.category.title',
+              isAvailable: 'isAvailable'
+            },
+            prepare({ title, category, isAvailable }) {
+              return {
+                title: `${title} — ${isAvailable ? '✅ Available' : '❌ Not Included'}`,
+                subtitle: category || 'Uncategorized'
+              };
+            }
+          }
+        }
+      ]
+    }),
   ],
 })

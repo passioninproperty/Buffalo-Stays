@@ -2,13 +2,65 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { MapPin, Users, BedDouble, Bed, Bath, ArrowLeft, Calendar, ShieldCheck, Clock } from 'lucide-react';
+import {
+  MapPin, Users, BedDouble, Bed, Bath, ArrowLeft, Calendar, ShieldCheck, Clock,
+  Wifi, Tv, Snowflake, Wind, Utensils, Coffee, Shield, HelpCircle,
+  Flame, Sparkles, WashingMachine, Shirt, Gamepad2, Baby, Dice5, Fan, Volume2,
+  Bell, AlertTriangle, ShieldAlert, PlusSquare, Briefcase, Refrigerator,
+  Microwave, ChefHat, GlassWater, Key, DoorOpen, Trees, Compass, Car, Dog,
+  CalendarDays, KeyRound, EyeOff, Thermometer
+} from 'lucide-react';
 import { client } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
 import { SITE_NAME, getAbsoluteUrl } from '@/lib/site';
-import { AmenityIcon } from '@/components/AmenityIcon';
 import { CollapsibleDescription } from '@/components/CollapsibleDescription';
 import { InquiryForm } from '@/components/InquiryForm';
+
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  wifi: Wifi,
+  tv: Tv,
+  snowflake: Snowflake,
+  wind: Wind,
+  utensils: Utensils,
+  coffee: Coffee,
+  shield: Shield,
+  flame: Flame,
+  sparkles: Sparkles,
+  washingmachine: WashingMachine,
+  shirt: Shirt,
+  bed: Bed,
+  bath: Bath,
+  gamepad: Gamepad2,
+  baby: Baby,
+  dice: Dice5,
+  fan: Fan,
+  volume: Volume2,
+  bell: Bell,
+  alert: AlertTriangle,
+  shieldalert: ShieldAlert,
+  plus: PlusSquare,
+  briefcase: Briefcase,
+  refrigerator: Refrigerator,
+  microwave: Microwave,
+  chefhat: ChefHat,
+  glasswater: GlassWater,
+  key: Key,
+  dooropen: DoorOpen,
+  trees: Trees,
+  compass: Compass,
+  car: Car,
+  dog: Dog,
+  calendardays: CalendarDays,
+  keyround: KeyRound,
+  eyeoff: EyeOff,
+  thermometer: Thermometer
+};
+
+const getAmenityIcon = (slug?: string) => {
+  if (!slug) return HelpCircle;
+  const cleanSlug = slug.toLowerCase().trim();
+  return ICON_MAP[cleanSlug] || HelpCircle;
+};
 
 interface Property {
   title: string;
@@ -39,6 +91,16 @@ interface Property {
     isAvailable: boolean;
     name: string;
     categoryName: string;
+  }>;
+  amenities?: Array<{
+    isAvailable: boolean;
+    amenity?: {
+      title: string;
+      iconSlug: string;
+      category?: {
+        title: string;
+      };
+    };
   }>;
 }
 
@@ -99,7 +161,16 @@ export default async function SpaceDetailPage({ params }: PageProps) {
     tags,
     specs,
     detailedDescription,
-    amenityStatuses[]{ isAvailable, "name": amenityRef->title, "categoryName": amenityRef->category->title }
+    amenities[]{
+      isAvailable,
+      amenity->{
+        title,
+        iconSlug,
+        category->{
+          title
+        }
+      }
+    }
   }`;
 
   const space = await client.fetch<Property | null>(
@@ -123,20 +194,24 @@ export default async function SpaceDetailPage({ params }: PageProps) {
   const featuredImageItem = galleryImages.find((img) => img.isFeatured === true) || galleryImages[0];
 
   // Organize grouped list for rendering
-  const amenityGroupsMap: Record<string, Array<{ name: string; isAvailable: boolean }>> = {};
-  space.amenityStatuses?.forEach((status) => {
-    if (status.name && status.categoryName) {
-      if (!amenityGroupsMap[status.categoryName]) {
-        amenityGroupsMap[status.categoryName] = [];
+  const groupedAmenitiesMap = (space.amenities || []).reduce<
+    Record<string, Array<{ title: string; iconSlug: string; isAvailable: boolean }>>
+  >((acc, item) => {
+    if (item.amenity && item.amenity.category?.title) {
+      const categoryTitle = item.amenity.category.title;
+      if (!acc[categoryTitle]) {
+        acc[categoryTitle] = [];
       }
-      amenityGroupsMap[status.categoryName].push({
-        name: status.name,
-        isAvailable: status.isAvailable !== false,
+      acc[categoryTitle].push({
+        title: item.amenity.title,
+        iconSlug: item.amenity.iconSlug,
+        isAvailable: item.isAvailable !== false,
       });
     }
-  });
+    return acc;
+  }, {});
 
-  const amenityGroups = Object.entries(amenityGroupsMap).map(([title, list]) => ({
+  const amenityGroups = Object.entries(groupedAmenitiesMap).map(([title, list]) => ({
     title,
     list,
   }));
@@ -388,24 +463,28 @@ export default async function SpaceDetailPage({ params }: PageProps) {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {group.list.map((amenity) => {
                           const isAvailable = amenity.isAvailable;
+                          const IconComponent = getAmenityIcon(amenity.iconSlug);
                           return (
                             <div
-                              key={amenity.name}
+                              key={amenity.title}
                               className={`flex items-center gap-3 ${
-                                isAvailable ? 'text-brand-text-main/80' : 'text-brand-text-main/40 line-through'
+                                isAvailable
+                                  ? 'text-brand-text-main'
+                                  : 'line-through text-neutral-400 opacity-60'
                               }`}
                             >
                               <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                                 isAvailable ? 'bg-brand-primary/5 text-brand-primary' : 'bg-brand-text-main/5 text-brand-text-main/30'
                               }`}>
-                                <AmenityIcon
-                                  name={amenity.name}
+                                <IconComponent
                                   className={`w-4 h-4 ${
                                     isAvailable ? 'text-brand-primary' : 'text-brand-text-main/30'
                                   }`}
                                 />
                               </div>
-                              <span className="text-sm font-semibold">{amenity.name}</span>
+                              <span className="text-sm font-semibold">
+                                {isAvailable ? '' : 'Unavailable: '}{amenity.title}
+                              </span>
                             </div>
                           );
                         })}

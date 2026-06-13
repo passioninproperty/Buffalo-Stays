@@ -32,6 +32,9 @@ interface Property {
   amenityStatuses?: Array<{
     name: string;
   }>;
+  amenities?: Array<{
+    name: string;
+  }>;
 }
 
 export const metadata: Metadata = {
@@ -73,7 +76,8 @@ export default async function SpacesPage() {
     availabilityStatus,
     summaryText,
     specs,
-    amenityStatuses[]{ "name": amenityRef->title }
+    amenityStatuses[]{ "name": amenityRef->title },
+    amenities[]{ "name": amenity->title }
   }`;
 
   let properties: Property[] = [];
@@ -85,6 +89,16 @@ export default async function SpacesPage() {
         next: { revalidate: 60 },
       }
     );
+    properties = properties.map(space => {
+      const combined = [
+        ...(space.amenityStatuses || []),
+        ...(space.amenities || []).map(a => ({ name: a.name }))
+      ];
+      return {
+        ...space,
+        amenityStatuses: combined
+      };
+    });
   } catch (error) {
     console.error('Failed to fetch properties from Sanity:', error);
   }
